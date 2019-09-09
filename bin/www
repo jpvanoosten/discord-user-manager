@@ -3,9 +3,9 @@
 /**
  * Module dependencies.
  */
-
+require("dotenv").config();
 var app = require("../app");
-var debug = require("debug")("google-discord-server:server");
+var debug = require("debug")("google-discord-server:www");
 var http = require("http");
 
 /**

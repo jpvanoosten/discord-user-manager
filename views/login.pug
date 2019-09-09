@@ -1,0 +1,15 @@
+extends layout
+
+block append head
+  link(rel="stylesheet" href="stylesheets/signin.css")
+
+block content
+  form.form-signin.text-center(action="/" method="post")
+    h1.h3.mb-3.font-weight-normal Please sign in
+    p.lead This is for site administrators only.
+    label.sr-only(for="inputUsername") Username
+    input.form-control(type="text" placeholder="Enter username" id="inputUsername" required autofocus)
+    label.sr-only(for="inputPassword") Password
+    input.form-control(type="password" placeholder="Password" id="inputPassword" required)
+    button.btn.btn-primary(type="submit") Submit
+

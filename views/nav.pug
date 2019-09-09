@@ -1,0 +1,23 @@
+mixin navItem(href, name)
+  - var active = href === path;
+  li.nav-item(class=`${active && "active"}`)
+    a.nav-link(href=href)= name
+      if active
+        span.sr-only (current)
+
+
+header
+  nav.navbar.navbar-expand-md.navbar-light.bg-light.fixed-top
+    a.navbar-brand(href="/") 
+      img(src="images/buas_logo.svg")
+    button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation")
+      span.navbar-toggler-icon
+    .collapse.navbar-collapse#navbarCollapse
+      ul.navbar-nav.mr-auto
+        +navItem("/", "Home")
+        +navItem("/privacy-policy", "Privacy Policy")
+        +navItem("/code-of-conduct", "Code of Conduct")
+      if user != null
+        img.rounded-circle(src="images/buas_logo.svg")
+      else
+        a.btn.btn-primary(role="button" href="/login") Log in

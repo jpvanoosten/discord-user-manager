@@ -1,5 +1,8 @@
 extends layout
 
 block content
-  h1= title
-  p Welcome to #{title}
+  main.flex-shrink-0(role="main")
+    .container(style="padding-top:60px")
+      h1.mt-5 Google Discord Server Authorization Process
+      p.lead This service allows you to join the Discord server using your Google account to determine your nickname.
+      pre #{path}

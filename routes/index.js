@@ -8,4 +8,18 @@ router.get("/", function(req, res, next) {
   });
 });
 
+/* GET privacy-policy page. */
+router.get("/privacy-policy", function(req, res, next) {
+  res.render("privacy-policy", {
+    title: "Privacy Policy - Google Discord Server"
+  });
+});
+
+/* GET code-of-conduct page. */
+router.get("/code-of-conduct", function(req, res, next) {
+  res.render("code-of-conduct", {
+    title: "Code of Conduct - Google Discord Server"
+  });
+});
+
 module.exports = router;

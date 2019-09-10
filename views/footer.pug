@@ -1,11 +1,14 @@
+block append head
+  link(rel="stylesheet" href="stylesheets/footer.css")
+
 footer.footer.mt-auto.py-3
-  .container
-    .row
+  .container-fluid
+    .row.text-center
       .col-sm
         span.text-muted Copyright © #{new Date().getFullYear()}
       .col-sm
         a(href="/privacy-policy") Privacy Policy
       .col-sm
         a(href="/code-of-conduct") Code of Conduct
-      
-      
+
+

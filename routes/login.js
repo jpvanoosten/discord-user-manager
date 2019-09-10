@@ -10,7 +10,9 @@ router.get("/", (req, res, next) => {
 
 /* POST login page. */
 router.post("/", (req, res, next) => {
-  res.render("login", {});
+  res.render("login", {
+    title: "Login - Google Discord Server"
+  });
 });
 
 module.exports = router;

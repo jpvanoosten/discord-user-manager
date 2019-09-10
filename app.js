@@ -1,14 +1,16 @@
-var createError = require("http-errors");
-var express = require("express");
-var path = require("path");
-var cookieParser = require("cookie-parser");
-var logger = require("morgan");
+const createError = require("http-errors");
+const express = require("express");
+const path = require("path");
+const cookieParser = require("cookie-parser");
+const logger = require("morgan");
 
-var indexRouter = require("./routes/index");
-var loginRouter = require("./routes/login");
-var usersRouter = require("./routes/users");
+const db = require("./src/DatabaseConnector");
 
-var app = express();
+const indexRouter = require("./routes/index");
+const loginRouter = require("./routes/login");
+const usersRouter = require("./routes/users");
+
+const app = express();
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
@@ -22,12 +24,18 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 
+// Add the db to the request object.
+app.use(function(req, res, next) {
+  req.db = db;
+  next();
+});
+
 // Add request URL to the `locals` property of the response
 // so that it can be accessed by the nav bar (to determine the active page)
-app.use(function(req, res, next){
+app.use(function(req, res, next) {
   res.locals.path = req.path;
   next();
-})
+});
 
 app.use("/", indexRouter);
 app.use("/login", loginRouter);

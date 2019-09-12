@@ -4,8 +4,6 @@ const path = require("path");
 const cookieParser = require("cookie-parser");
 const logger = require("morgan");
 
-const db = require("./src/DatabaseConnector");
-
 const indexRouter = require("./routes/index");
 const loginRouter = require("./routes/login");
 const usersRouter = require("./routes/users");
@@ -23,12 +21,6 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
-
-// Add the db to the request object.
-app.use(function(req, res, next) {
-  req.db = db;
-  next();
-});
 
 // Add request URL to the `locals` property of the response
 // so that it can be accessed by the nav bar (to determine the active page)

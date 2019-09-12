@@ -1,3 +1,12 @@
 {
-    "editor.formatOnSave": true
+    "editor.formatOnSave": true,
+    "sqltools.connections": [
+        {
+            "database": ".\\data\\sqlite.db",
+            "dialect": "SQLite",
+            "name": "discord-google-server"
+        }
+    ],
+    "sqltools.useNodeRuntime": true,
+    "editor.tabSize": 2
 }

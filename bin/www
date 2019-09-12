@@ -4,6 +4,7 @@
  * Module dependencies.
  */
 require("dotenv").config();
+const bcrypt = require("bcrypt");
 const app = require("../app");
 const debug = require("debug")("google-discord-server:www");
 const http = require("http");
@@ -25,6 +26,15 @@ const server = http.createServer(app);
 models.sequelize
   .sync()
   .then(() => {
+    // Add a default admin user.
+    return models.Admin.upsert({
+      username: process.env.ADMIN_USERNAME,
+      password: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10)
+    });
+  })
+  .then(() => {
+    debug("Database synchronization succeeded.");
+
     /**
      * Listen on provided port, on all network interfaces.
      */

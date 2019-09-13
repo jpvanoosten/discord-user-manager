@@ -1,17 +1,21 @@
-var express = require("express");
-var router = express.Router();
+const express = require("express");
+const router = express.Router();
+const settings = require("../settings");
+
 
 /* GET login page. */
-router.get("/", (req, res, next) => {
+router.get("/", (req, res) => {
   res.render("login", {
-    title: "Login - Google Discord Server"
+    pageTitle: "Login",
+    ...settings
   });
 });
 
 /* POST login page. */
-router.post("/", (req, res, next) => {
+router.post("/", (req, res) => {
   res.render("login", {
-    title: "Login - Google Discord Server"
+    pageTitle: "Login",
+    ...settings
   });
 });
 

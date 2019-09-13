@@ -1,12 +1,13 @@
 {
-    "editor.formatOnSave": true,
-    "sqltools.connections": [
-        {
-            "database": ".\\data\\sqlite.db",
-            "dialect": "SQLite",
-            "name": "discord-google-server"
-        }
-    ],
-    "sqltools.useNodeRuntime": true,
-    "editor.tabSize": 2
+  "sqltools.connections": [
+    {
+      "database": ".\\data\\sqlite.db",
+      "dialect": "SQLite",
+      "name": "discord-user-manager"
+    }
+  ],
+  "sqltools.useNodeRuntime": true,
+  "editor.tabSize": 2,
+"eslint.autoFixOnSave": true,
+"editor.formatOnSave": true
 }

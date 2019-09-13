@@ -7,9 +7,9 @@ block content
   form.form-signin.text-center(action="/login" method="post")
     h1.h3.mb-3.font-weight-normal Please sign in
     p.lead This is for administrators only.
-    label.sr-only(for="inputUsername") Username
-    input.form-control(type="text" placeholder="Enter username" id="inputUsername" required autofocus)
-    label.sr-only(for="inputPassword") Password
-    input.form-control(type="password" placeholder="Password" id="inputPassword" required)
+    label.sr-only(for="username") Username
+    input.form-control(type="text" placeholder="Username" id="username" name="username" value=username required autofocus)
+    label.sr-only(for="password") Password
+    input.form-control(type="password" placeholder="Password" id="password" name="password" required)
     button.btn.btn-primary(type="submit") Submit
 

@@ -1,12 +1,15 @@
+const debug = require("debug")("discord-user-manager:index");
 const express = require("express");
 const router = express.Router();
 const settings = require("../settings");
 
 /* GET home page. */
 router.get("/", function(req, res) {
+  // Remove the title seperator so that only the site title is used to generate the page tite.
+  // eslint-disable-next-line no-unused-vars
+  const { titleSeperator, ...rest } = settings;
   res.render("index", {
-    pageTitle: "Discord User Manager",
-    ...settings
+    ...rest
   });
 });
 

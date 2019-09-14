@@ -13,8 +13,9 @@ router.get("/", (req, res, next) => {
 
         next(err);
       } else {
-        debug(`User ${username} logged out.`);
-
+        if (username) {
+          debug(`User ${username} logged out.`);
+        }
         // Clear the cookie that stores the session id.
         res.clearCookie("sid");
         res.redirect("/");

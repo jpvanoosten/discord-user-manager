@@ -7,9 +7,15 @@ block content
   form.form-signin.text-center(action="/login" method="post")
     h1.h3.mb-3.font-weight-normal Please sign in
     p.lead This is for administrators only.
-    label.sr-only(for="username") Username
-    input.form-control(type="text" placeholder="Username" id="username" name="username" value=username required autofocus)
-    label.sr-only(for="password") Password
-    input.form-control(type="password" placeholder="Password" id="password" name="password" required)
+    .form-group
+      label.sr-only(for="username") Username
+      input.form-control(class=(usernameError && "is-invalid")  type="text" placeholder="Username" id="username" name="username" value=username required autofocus)
+      if usernameError
+        .invalid-feedback= usernameError
+    .form-group
+      label.sr-only(for="password") Password
+      input.form-control(class=(passwordError && "is-invalid") type="password" placeholder="Password" id="password" name="password" required)
+      if passwordError
+        .invalid-feedback= passwordError
     button.btn.btn-primary(type="submit") Submit
 

@@ -1,11 +1,13 @@
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
-const express = require("express");
-const path = require("path");
 const cookieParser = require("cookie-parser");
-const session = require("express-session");
+const express = require("express");
+const flash = require("connect-flash");
+const helmet = require("helmet");
 const logger = require("morgan");
+const session = require("express-session");
 const passport = require("passport");
+const path = require("path");
 const LocalStrategy = require("passport-local").Strategy;
 
 // initalize Sequelize with session store
@@ -73,12 +75,18 @@ passport.use(
           } else {
             // Passwords don't match, return null.
             return done(null, null, {
-              message: `Invalid password for user ${username}`
+              message: `Invalid password for user ${username}`,
+              passwordError: "Invalid password.",
+              username
             });
           }
         } else {
           // User with specified username was not found in the Admin table.
-          return done(null, null, { message: `User ${username} not found.` });
+          return done(null, null, {
+            message: `User ${username} not found.`,
+            usernameError: "Invalid username.",
+            username
+          });
         }
       })
       .catch(err => {
@@ -94,6 +102,10 @@ const app = express();
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
 
+// Use Helmet
+// see: https://expressjs.com/en/advanced/best-practice-security.html#use-helmet
+app.use(helmet());
+
 // Using Morgan, logs all HTTP requests. The "dev" option gives it a specific styling.
 // https://github.com/expressjs/morgan#dev
 app.use(logger("dev"));
@@ -107,6 +119,7 @@ app.use(
     store: new SequelizeStore({
       db: models.sequelize
     }),
+    saveUninitialized: false,
     resave: false,
     cookie: {
       maxAge: 8.64e7, // 1 day
@@ -117,12 +130,13 @@ app.use(
 );
 app.use(passport.initialize());
 app.use(passport.session());
+app.use(flash());
 app.use(express.static(path.join(__dirname, "public")));
 
-// Add request URL to the `locals` property of the response
-// so that it can be accessed by the nav bar (to determine the active page)
+// Add local variables so they are available to all PUG templates.
 app.use(function(req, res, next) {
   res.locals.path = req.path;
+  res.locals.user = req.user;
   next();
 });
 
@@ -138,7 +152,7 @@ app.use(function(req, res, next) {
 });
 
 // error handler
-app.use(function(err, req, res, next) {
+app.use(function(err, req, res) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};

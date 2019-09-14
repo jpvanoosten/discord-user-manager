@@ -9,6 +9,7 @@ router.get("/", function(req, res) {
   // eslint-disable-next-line no-unused-vars
   const { titleSeperator, ...rest } = settings;
   res.render("index", {
+    user: req.user,
     ...rest
   });
 });

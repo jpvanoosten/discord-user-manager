@@ -17,7 +17,7 @@ header
         +navItem("/", "Home")
         +navItem("/privacy-policy", "Privacy Policy")
         +navItem("/code-of-conduct", "Code of Conduct")
-      if user != null
-        img.rounded-circle(src="images/buas_logo.svg")
+      if user
+        a.btn.btn-primary(role="button" href="/logout") Log out
       else
         a.btn.btn-primary(role="button" href="/login") Log in

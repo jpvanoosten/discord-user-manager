@@ -1,4 +1,4 @@
-const debug = require("debug")("discord-user-manager:index");
+// const debug = require("debug")("discord-user-manager:index");
 const express = require("express");
 const router = express.Router();
 const settings = require("../settings");

@@ -2,12 +2,15 @@
   "name": "discord-user-manager",
   "version": "0.0.0",
   "private": true,
+  "author": "Jeremiah van Oosten <jpvanoosten@hotmail.com>",
   "repository": {
     "type": "git",
     "url": "https://github.com/jpvanoosten/discord-user-manager.git"
   },
+  "main": "./bin/www",
   "scripts": {
-    "start": "nodemon ./bin/www"
+    "start": "node ./bin/www",
+    "start:watch": "nodemon ./bin/www"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",
@@ -29,6 +32,8 @@
     "sqlite3": "^4.1.0"
   },
   "devDependencies": {
+    "browser-sync": "^2.26.7",
+    "connect-browser-sync": "^2.1.0",
     "eslint": "^6.3.0",
     "nodemon": "^1.19.2",
     "sequelize-cli": "^5.5.1"

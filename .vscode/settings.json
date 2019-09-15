@@ -8,6 +8,6 @@
   ],
   "sqltools.useNodeRuntime": true,
   "editor.tabSize": 2,
-"eslint.autoFixOnSave": true,
-"editor.formatOnSave": true
+  "eslint.autoFixOnSave": true,
+  "editor.formatOnSave": true
 }

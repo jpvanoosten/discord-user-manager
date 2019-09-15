@@ -1,3 +1,4 @@
+const debug = require("debug")("discord-user-manager:app");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
@@ -97,6 +98,24 @@ passport.use(
 );
 
 const app = express();
+
+// Use browser-sync to refresh the browser if a file changes.
+// https://github.com/schmich/connect-browser-sync
+if (app.get("env") === "development") {
+  const browserSync = require("browser-sync");
+  const bs = browserSync.create().init({
+    files: ["**/*.js", "views/*.pug", "public/**"],
+    ignore: ["node_modules"],
+    logSnippet: true,
+    open: false,
+    proxy: "localhost:3000",
+    port: 3001,
+    ui: {
+      port: 3002
+    }
+  });
+  app.use(require("connect-browser-sync")(bs));
+}
 
 // view engine setup
 app.set("views", path.join(__dirname, "views"));

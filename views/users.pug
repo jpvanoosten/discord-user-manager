@@ -5,6 +5,11 @@ mixin userRow(user)
     th(scope="row")= user.id
     td= user.username
     td= user.discordId
+    td
+      .btn-group(role="group" aria-label="Actions")
+        button.btn.btn-secondary(type="button") Edit
+        button.btn.btn-secondary(type="button") Delete
+
 
 mixin paginationControls
   // The total number of pages for the pagination control
@@ -28,7 +33,7 @@ mixin paginationControls
         a.page-link(
           aria-disabled= disableFirst && "true"
           tabIndex= disableFirst && "-1"
-          href=`/users?offset=0&limit=${limit}`
+          href=`/users?q=${search}&offset=0&limit=${limit}`
         ) First
       // The "Previous" page button
       - const disablePrev = offset === 0;
@@ -36,14 +41,14 @@ mixin paginationControls
         a.page-link(
           aria-disabled= disablePrev && "true"
           tabindex= disablePrev && "-1"
-          href=`/users?offset=${Math.max(offset-limit, 0)}&limit=${limit}` 
+          href=`/users?q=${search}&offset=${Math.max(offset-limit, 0)}&limit=${limit}` 
         ) Previous
       // Show the page selectors.
       - let page = firstPage + 1;
       - for (page = firstPage + 1; page <= lastPage; ++page)
         - const current = page === currentPage;
         li.page-item(class=(current && "active") aria-current=(current && "page"))
-          a.page-link(href=`/users?offset=${(page-1)*limit}&limit=${limit}`)= page
+          a.page-link(href=`/users?q=${search}&offset=${(page-1)*limit}&limit=${limit}`)= page
             if current
               span.sr-only (current)
       // The "Next" page button.
@@ -52,7 +57,7 @@ mixin paginationControls
         a.page-link(
           aria-disabled= disableNext && "true"
           tabindex= disableNext && "-1" 
-          href=`/users?offset=${offset+limit}&limit=${limit}`
+          href=`/users?q=${search}&offset=${offset+limit}&limit=${limit}`
         ) Next
       // The "Last" page button.
       - const disableLast = offset >= (numUsers - limit);
@@ -60,7 +65,7 @@ mixin paginationControls
         a.page-link(
           aria-disabled= disableLast && "true"
           tabindex= disableLast && "-1" 
-          href=`/users?offset=${(numPages-1)*limit}&limit=${limit}`
+          href=`/users?q=${search}&offset=${(numPages-1)*limit}&limit=${limit}`
         ) Last
 
 
@@ -74,12 +79,25 @@ block content
         .p-2.flex-grow-1.bd-highlight
           +paginationControls()
         .p-2.bd-highlight
+          .input-group.mb-3
+            .input-group-prepend
+              label.input-group-text(for="dropdownMenuLink") Show
+            .dropdown
+              button.btn.btn-primary.dropdown-toggle#dropdownMenuLink(type="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false" href=`/users?q=${search}&offset=${offset}&limit=10`)= limit
+              .dropdown-menu(aria-labelledby="dropdownMenuLink")
+                a.dropdown-item(href=`/users?q=${search}&offset=${offset}&limit=10`) 10
+                a.dropdown-item(href=`/users?q=${search}&offset=${offset}&limit=20`) 20
+                a.dropdown-item(href=`/users?q=${search}&offset=${offset}&limit=50`) 50
+                a.dropdown-item(href=`/users?q=${search}&offset=${offset}&limit=100`) 100
+        .p-2.bd-highlight
 
           form(action="/users" method="get")
             .form-row.align-items-center
               .col-auto
                 label.sr-only(for="search") search
                 input.form-control.mb-2#search(type="text" name="q" placeholder="Filter" value=search)
+                input#limit(type="hidden" name="limit" value=limit)
+                input#offset(type="hidden" name="offset" value=offset)
               .col-auto
                 button.btn.btn-primary.mb-2(type="submit") Submit
 
@@ -89,6 +107,7 @@ block content
             th(scope="col") id
             th(scope="col") Username
             th(scope="col") Discord ID
+            th(scope="col") Actions
         tbody
           each user in users
             +userRow(user)

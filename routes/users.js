@@ -12,10 +12,29 @@ const SUBSTRING = Sequelize.Op.substring;
 /* GET users listing. */
 router.get("/", async (req, res) => {
   // Get the query parameters
-  const search = req.query.q;
-  const limit = Math.max(parseInt(req.query.limit || 50), 1);
-  const offset = parseInt(req.query.offset || 0);
-  const order = req.query.order;
+  const search =
+    typeof req.query.q === "undefined"
+      ? (req.session.users && req.session.users.search) || ""
+      : req.query.q;
+  const limit = Math.max(
+    parseInt(
+      req.query.limit || (req.session.users && req.session.users.limit) || 50
+    ),
+    1
+  );
+  let offset = parseInt(
+    req.query.offset || (req.session.users && req.session.users.offset) || 0
+  );
+  const order =
+    req.query.order || (req.session.users && req.session.users.order) || "";
+
+  // Save query parameters to the session if they changed.
+  req.session.users = {
+    search,
+    limit,
+    offset,
+    order
+  };
 
   let where;
   if (search) {
@@ -40,6 +59,10 @@ router.get("/", async (req, res) => {
   const numUsers = await models.User.count({
     where
   });
+
+  // Limit offset so that it doesn't exceed the maximum number of users.
+  offset = Math.min(offset, numUsers - 1);
+
   const users = await models.User.findAll({
     where,
     limit,

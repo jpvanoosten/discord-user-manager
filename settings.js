@@ -1,3 +1,5 @@
+const path = require("path");
+
 module.exports = {
   // Site title (will be used in page titles.)
   siteTitle: "Discord User Manager",
@@ -6,7 +8,7 @@ module.exports = {
   titleSeperator: " | ",
   // Database path and file name.
   db: {
-    path: "data",
+    path: path.resolve("data"),
     file: "sqlite.db"
   }
 };

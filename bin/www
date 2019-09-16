@@ -7,8 +7,10 @@ require("dotenv").config();
 const bcrypt = require("bcrypt");
 const app = require("../app");
 const debug = require("debug")("discord-user-manager:www");
+const fs = require("fs");
 const http = require("http");
 const models = require("../models");
+const settings = require("../settings");
 
 /**
  * Get port from environment and store in Express.
@@ -20,6 +22,13 @@ app.set("port", port);
  * Create HTTP server.
  */
 const server = http.createServer(app);
+
+/**
+ * Crate the "data" folder if it doesn't exist, otherwise sequelize.sync() will fail.
+ */
+if (!fs.existsSync(settings.db.path)) {
+  fs.mkdirSync(settings.db.path);
+}
 
 /**
  * Create database and upsert admin user.
@@ -36,7 +45,8 @@ models.sequelize
     }
 
     if (process.env.UPSERT_TEST_USERS === "true") {
-      for (let i = 0; i < 51; ++i) {
+      const numTestUsers = process.env.NUM_TEST_USERS || 50;
+      for (let i = 0; i < numTestUsers; ++i) {
         await models.User.upsert({
           id: i,
           username: `Test${i}`,

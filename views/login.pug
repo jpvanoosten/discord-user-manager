@@ -9,12 +9,12 @@ block content
     p.lead This is for administrators only.
     .form-group
       label.sr-only(for="username") Username
-      input.form-control(class=(usernameError && "is-invalid")  type="text" placeholder="Username" id="username" name="username" value=username required autofocus)
+      input.form-control#username(class=(usernameError && "is-invalid")  type="text" placeholder="Username" name="username" value=username required autofocus)
       if usernameError
         .invalid-feedback= usernameError
     .form-group
       label.sr-only(for="password") Password
-      input.form-control(class=(passwordError && "is-invalid") type="password" placeholder="Password" id="password" name="password" required)
+      input.form-control#password(class=(passwordError && "is-invalid") type="password" placeholder="Password" name="password" required)
       if passwordError
         .invalid-feedback= passwordError
     button.btn.btn-primary(type="submit") Submit

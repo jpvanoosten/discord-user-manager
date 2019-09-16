@@ -14,17 +14,17 @@ mixin paginationControls
         a.page-link(
           aria-disabled= disablePrev && "true"
           tabindex= disablePrev && "-1"
-          href=`/users?offset=${offset-limit}` 
+          href=`/users?offset=${Math.max(offset-limit, 0)}&limit=${limit}` 
         ) Previous
       - let count = 0;
-      while count < (users.length+limit)
+      while count < numUsers
         - const current = count === offset;
-        li.page-item(class= current && "active" aria-current= current && "page")
+        li.page-item(class=(current && "active") aria-current=(current && "page"))
           a.page-link(href=`/users?offset=${count}&limit=${limit}`)= count/limit + 1
             if current
               span.sr-only (current)
         - count += limit
-      - const disableNext = offset > (users.length - limit);
+      - const disableNext = offset >= (numUsers - limit);
       li.page-item(class= disableNext && "disabled")
         a.page-link(
           aria-disabled= disableNext && "true"

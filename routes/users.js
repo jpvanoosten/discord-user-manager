@@ -8,12 +8,15 @@ const router = express.Router();
 router.get("/", async (req, res, next) => {
   // Get the query parameters
   const where = req.query.q;
-  const limit = req.query.limit || 50;
-  const offset = req.query.offset || 0;
+  const limit = parseInt(req.query.limit || 50);
+  const offset = parseInt(req.query.offset || 0);
   const order = req.query.order;
 
   debug("Querying users");
   // Get a list of users
+  const numUsers = await models.User.count({
+    where
+  });
   const users = await models.User.findAll({
     where,
     limit,
@@ -24,6 +27,7 @@ router.get("/", async (req, res, next) => {
 
   res.render("users", {
     pageTitle: "Users",
+    numUsers,
     users,
     limit,
     offset

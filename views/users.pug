@@ -17,6 +17,8 @@ mixin paginationControls
   - let firstPage = Math.max(Math.floor(currentPage - (maxPages / 2)), 0);
   // Last page to show in the pagination controls.
   - const lastPage = Math.min(firstPage + maxPages, numPages);
+  // Recompute first page to show at least maxPages
+  - firstPage = Math.max(lastPage - maxPages, 0);
 
   nav(aria-label="User pagination controls")
     ul.pagination
@@ -38,13 +40,12 @@ mixin paginationControls
         ) Previous
       // Show the page selectors.
       - let page = firstPage + 1;
-      while page <= lastPage
+      - for (page = firstPage + 1; page <= lastPage; ++page)
         - const current = page === currentPage;
         li.page-item(class=(current && "active") aria-current=(current && "page"))
           a.page-link(href=`/users?offset=${(page-1)*limit}&limit=${limit}`)= page
             if current
               span.sr-only (current)
-        - ++page
       // The "Next" page button.
       - const disableNext = offset >= (numUsers - limit);
       li.page-item(class= disableNext && "disabled")
@@ -69,7 +70,18 @@ block content
       h1.mt-5 Manage Users
       p.lead Here you can manage the users on your Discord server.
 
-      +paginationControls()
+      .d-flex.bd-highlight
+        .p-2.flex-grow-1.bd-highlight
+          +paginationControls()
+        .p-2.bd-highlight
+
+          form(action="/users" method="get")
+            .form-row.align-items-center
+              .col-auto
+                label.sr-only(for="search") search
+                input.form-control.mb-2#search(type="text" name="q" placeholder="Filter" value=search)
+              .col-auto
+                button.btn.btn-primary.mb-2(type="submit") Submit
 
       table.table
         thead

@@ -2,7 +2,7 @@ extends layout
 
 mixin userRow(user)
   tr
-    th(scope="row") user.id
+    th(scope="row")= user.id
     td= user.username
     td= user.discordId
 
@@ -17,7 +17,7 @@ mixin paginationControls
           href=`/users?offset=${offset-limit}` 
         ) Previous
       - let count = 0;
-      while count < users.length
+      while count < (users.length+limit)
         - const current = count === offset;
         li.page-item(class= current && "active" aria-current= current && "page")
           a.page-link(href=`/users?offset=${count}&limit=${limit}`)= count/limit + 1

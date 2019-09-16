@@ -26,13 +26,23 @@ const server = http.createServer(app);
  */
 models.sequelize
   .sync()
-  .then(() => {
+  .then(async () => {
     // Add a default admin user.
     if (process.env.UPSERT_ADMIN_USER === "true") {
-      return models.Admin.upsert({
+      await models.Admin.upsert({
         username: process.env.ADMIN_USERNAME,
         password: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10)
       });
+    }
+
+    if (process.env.UPSERT_TEST_USERS === "true") {
+      for (let i = 0; i < 51; ++i) {
+        await models.User.upsert({
+          id: i,
+          username: `Test${i}`,
+          discordId: `discordId${i}`
+        });
+      }
     }
   })
   .then(() => {

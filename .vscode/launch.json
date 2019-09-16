@@ -13,6 +13,12 @@
       "restart": true,
       "console": "integratedTerminal",
       "internalConsoleOptions": "neverOpen"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Config Env",
+      "program": "${workspaceFolder}/utils/configEnv.js"
     }
   ]
 }

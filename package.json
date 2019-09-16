@@ -9,6 +9,7 @@
   },
   "main": "./bin/www",
   "scripts": {
+    "configure": "node ./utils/configEnv.js",
     "start": "node ./bin/www",
     "start:watch": "nodemon ./bin/www"
   },
@@ -36,6 +37,7 @@
     "connect-browser-sync": "^2.1.0",
     "eslint": "^6.3.0",
     "nodemon": "^1.19.2",
-    "sequelize-cli": "^5.5.1"
+    "sequelize-cli": "^5.5.1",
+    "yargs": "^14.0.0"
   }
 }

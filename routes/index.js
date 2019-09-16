@@ -5,11 +5,10 @@ const settings = require("../settings");
 
 /* GET home page. */
 router.get("/", function(req, res) {
-  // Remove the title seperator so that only the site title is used to generate the page tite.
   // eslint-disable-next-line no-unused-vars
-  const { titleSeperator, ...rest } = settings;
   res.render("index", {
-    ...rest
+    pageTitle: "Home",
+    ...settings
   });
 });
 

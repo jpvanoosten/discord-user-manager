@@ -1,0 +1,54 @@
+extends layout
+
+mixin userRow(user)
+  tr
+    th(scope="row") user.id
+    td= user.username
+    td= user.discordId
+
+mixin paginationControls
+  nav(aria-label="User pagination controls")
+    ul.pagination
+      - const disablePrev = offset === 0;
+      li.page-item(class= disablePrev && "disabled")
+        a.page-link(
+          aria-disabled= disablePrev && "true"
+          tabindex= disablePrev && "-1"
+          href=`/users?offset=${offset-limit}` 
+        ) Previous
+      - let count = 0;
+      while count < users.length
+        - const current = count === offset;
+        li.page-item(class= current && "active" aria-current= current && "page")
+          a.page-link(href=`/users?offset=${count}&limit=${limit}`)= count/limit + 1
+            if current
+              span.sr-only (current)
+        - count += limit
+      - const disableNext = offset > (users.length - limit);
+      li.page-item(class= disableNext && "disabled")
+        a.page-link(
+          aria-disabled= disableNext && "true"
+          tabindex= disableNext && "-1" 
+          href=`/users?offset=${offset+limit}&limit=${limit}`
+        ) Next
+
+block content
+  main.flex-shrink-0(role="main")
+    .container(style="padding-top:60px")
+      h1.mt-5 Manage Users
+      p.lead Here you can manage the users on your Discord server.
+
+      +paginationControls()
+
+      table.table
+        thead
+          tr
+            th(scope="col") id
+            th(scope="col") Username
+            th(scope="col") Discord ID
+        tbody
+          each user in users
+            +userRow(user)
+
+      +paginationControls()
+

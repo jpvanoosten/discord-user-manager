@@ -1,4 +1,4 @@
-const debug = require("debug")("discord-user-manager:app");
+// const debug = require("debug")("discord-user-manager:app");
 const bcrypt = require("bcrypt");
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");

@@ -1,11 +1,11 @@
-const createError = require("http-errors");
+// const createError = require("http-errors");
 const debug = require("debug")("discord-user-manager:users");
 const express = require("express");
 const models = require("../models");
 const router = express.Router();
 
 /* GET users listing. */
-router.get("/", async (req, res, next) => {
+router.get("/", async (req, res) => {
   // Get the query parameters
   const where = req.query.q;
   const limit = parseInt(req.query.limit || 50);

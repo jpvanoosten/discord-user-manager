@@ -7,8 +7,28 @@ mixin userRow(user)
     td= user.discordId
 
 mixin paginationControls
+  // The total number of pages for the pagination control
+  - const numPages = Math.ceil(numUsers/limit);
+  // The current page (in the range 1 ... numPages)
+  - const currentPage = Math.floor(offset/limit) + 1;
+  // How many pages to show in the pagination controls.
+  - const maxPages = 5;
+  // The first page to show in the pagination controls.
+  - let firstPage = Math.max(Math.floor(currentPage - (maxPages / 2)), 0);
+  // Last page to show in the pagination controls.
+  - const lastPage = Math.min(firstPage + maxPages, numPages);
+
   nav(aria-label="User pagination controls")
     ul.pagination
+      // The "First" page button.
+      - const disableFirst = offset === 0;
+      li.page-item(class= disableFirst && "disabled")
+        a.page-link(
+          aria-disabled= disableFirst && "true"
+          tabIndex= disableFirst && "-1"
+          href=`/users?offset=0&limit=${limit}`
+        ) First
+      // The "Previous" page button
       - const disablePrev = offset === 0;
       li.page-item(class= disablePrev && "disabled")
         a.page-link(
@@ -16,14 +36,16 @@ mixin paginationControls
           tabindex= disablePrev && "-1"
           href=`/users?offset=${Math.max(offset-limit, 0)}&limit=${limit}` 
         ) Previous
-      - let count = 0;
-      while count < numUsers
-        - const current = count === offset;
+      // Show the page selectors.
+      - let page = firstPage + 1;
+      while page <= lastPage
+        - const current = page === currentPage;
         li.page-item(class=(current && "active") aria-current=(current && "page"))
-          a.page-link(href=`/users?offset=${count}&limit=${limit}`)= count/limit + 1
+          a.page-link(href=`/users?offset=${(page-1)*limit}&limit=${limit}`)= page
             if current
               span.sr-only (current)
-        - count += limit
+        - ++page
+      // The "Next" page button.
       - const disableNext = offset >= (numUsers - limit);
       li.page-item(class= disableNext && "disabled")
         a.page-link(
@@ -31,6 +53,15 @@ mixin paginationControls
           tabindex= disableNext && "-1" 
           href=`/users?offset=${offset+limit}&limit=${limit}`
         ) Next
+      // The "Last" page button.
+      - const disableLast = offset >= (numUsers - limit);
+      li.page-item(class= disableLast && "disabled")
+        a.page-link(
+          aria-disabled= disableLast && "true"
+          tabindex= disableLast && "-1" 
+          href=`/users?offset=${(numPages-1)*limit}&limit=${limit}`
+        ) Last
+
 
 block content
   main.flex-shrink-0(role="main")

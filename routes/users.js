@@ -8,7 +8,7 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   // Get the query parameters
   const where = req.query.q;
-  const limit = parseInt(req.query.limit || 50);
+  const limit = Math.max(parseInt(req.query.limit || 50), 1);
   const offset = parseInt(req.query.offset || 0);
   const order = req.query.order;
 

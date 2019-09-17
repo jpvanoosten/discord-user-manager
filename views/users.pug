@@ -6,9 +6,28 @@ mixin userRow(user)
     td= user.username
     td= user.discordId
     td
+      label.sr-only(for=`edit-user-${user.id}`)= `Edit user ${user.id}`
+      label.sr-only(for=`delete-user-${user.id}`)= `Delete user ${user.id}`
+      // Action buttons
       .btn-group(role="group" aria-label="Actions")
-        button.btn.btn-secondary(type="button") Edit
-        button.btn.btn-secondary(type="button") Delete
+        a.btn.btn-success(
+          role="button" 
+          data-toggle="tooltip" 
+          data-placement="top" 
+          title="Edit user" 
+          id=`edit-user-${user.id}`
+          href=`/users/edit/${user.id}`
+        )
+          span.oi.oi-pencil(aria-hidden="true")
+        a.btn.btn-danger(
+          role="button" 
+          data-toggle="tooltip" 
+          data-placement="top" 
+          title="Delete user" 
+          id=`delete-user-${user.id}`
+          href=`/users/delete/${user.id}`
+        )
+          span.oi.oi-trash(aria-hiden="true")
 
 
 mixin paginationControls
@@ -68,6 +87,12 @@ mixin paginationControls
           href=`/users?q=${search}&offset=${(numPages-1)*limit}&limit=${limit}`
         ) Last
 
+block append scripts
+  script.
+    // Enable tooltips on elements with a data-toggle="tooltip" attribute.
+    $(function () {
+      $('[data-toggle="tooltip"]').tooltip()
+    })
 
 block content
   main.flex-shrink-0(role="main")
@@ -112,4 +137,3 @@ block content
             +userRow(user)
 
       +paginationControls()
-

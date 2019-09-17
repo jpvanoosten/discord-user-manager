@@ -10,6 +10,7 @@ const session = require("express-session");
 const passport = require("passport");
 const path = require("path");
 const LocalStrategy = require("passport-local").Strategy;
+const settings = require("./settings");
 
 // initalize Sequelize with session store
 const SequelizeStore = require("connect-session-sequelize")(session.Store);
@@ -98,6 +99,12 @@ passport.use(
 );
 
 const app = express();
+
+// Specify app settings on the app's locals object so that
+// they can be used by the pug template renderer.
+app.locals = {
+  ...settings
+};
 
 // Use browser-sync to refresh the browser if a file changes.
 // https://github.com/schmich/connect-browser-sync

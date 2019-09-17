@@ -81,4 +81,11 @@ router.get("/", async (req, res) => {
   });
 });
 
+// Edit a user
+router.get("/edit/*", (req, res) => {
+  res.render("edit-user", {
+    pageTitle: "Edit User"
+  });
+});
+
 module.exports = router;

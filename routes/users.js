@@ -82,9 +82,22 @@ router.get("/", async (req, res) => {
 });
 
 // Edit a user
-router.get("/edit/*", (req, res) => {
+router.get("/edit/:id", async (req, res) => {
+  const id = req.params.id;
+
+  const user = await models.User.findOne({
+    where: {
+      id
+    }
+  });
+
+  if (!user) {
+    return res.redirect("/users");
+  }
+
   res.render("edit-user", {
-    pageTitle: "Edit User"
+    pageTitle: "Edit User",
+    user
   });
 });
 

@@ -70,13 +70,16 @@ router.get("/", async (req, res) => {
     raw: true // Just get the fields, but don't attach functions (see: https://sequelize.org/master/manual/models-usage.html#raw-queries)
   });
 
+  const flashMessages = req.flash("info");
+
   res.render("users", {
     pageTitle: "Users",
     numUsers,
     users,
     limit,
     offset,
-    search
+    search,
+    ...flashMessages
   });
 });
 
@@ -123,6 +126,11 @@ router.post("/delete/:id", async (req, res) => {
 
   // Perform the delete
   await user.destroy();
+
+  // Send a flash message that the user was deleted.
+  req.flash("info", {
+    userDeletedMessage: `User with id ${id} has been deleted.`
+  });
 
   res.redirect("/users");
 });

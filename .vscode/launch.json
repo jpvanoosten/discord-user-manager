@@ -8,6 +8,12 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Server",
+      "program": "${workspaceFolder}/bin/www"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Debug Server (nodemon)",
       "runtimeExecutable": "nodemon",
       "program": "${workspaceFolder}/bin/www",
       "restart": true,

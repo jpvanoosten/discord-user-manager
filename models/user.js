@@ -3,8 +3,8 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
     {
-      username: { type: DataTypes.STRING, unique: "compositeKey" },
-      discordId: { type: DataTypes.STRING, unique: "compositeKey" }
+      username: { type: DataTypes.STRING, unique: true },
+      discordId: { type: DataTypes.STRING, unique: true }
     },
     {}
   );

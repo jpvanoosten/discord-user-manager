@@ -1,0 +1,10 @@
+.alert-top {
+  position: fixed;
+  top: 0px;
+  left: 4%;
+  width: 92%;
+  z-index: 9999; /* Must come above the navbar which has z-index: 1030; */
+  border-top: 0px;
+  border-top-left-radius: 0px;
+  border-top-right-radius: 0px;
+}

@@ -6,7 +6,6 @@ const models = require("../models");
 const router = express.Router();
 
 const OR = Sequelize.Op.or;
-const LIKE = Sequelize.Op.like;
 const SUBSTRING = Sequelize.Op.substring;
 
 /* GET users listing. */
@@ -82,7 +81,32 @@ router.get("/", async (req, res) => {
 });
 
 // Edit a user
-router.get("/edit/:id", async (req, res) => {
+router.post("/edit/:id", async (req, res) => {
+  const id = req.params.id;
+  const username = req.body.username;
+  //  const discordId = req.body.discordId;
+
+  const user = await models.User.findOne({
+    where: {
+      id
+    }
+  });
+
+  if (!user) {
+    return res.redirect("/users");
+  }
+
+  debug(`Editing user [${id}] ${user.username} -> ${username}`);
+
+  // Perform the update
+  await user.update({
+    username
+  });
+
+  res.redirect("/users");
+});
+
+router.post("/delete/:id", async (req, res) => {
   const id = req.params.id;
 
   const user = await models.User.findOne({
@@ -95,10 +119,12 @@ router.get("/edit/:id", async (req, res) => {
     return res.redirect("/users");
   }
 
-  res.render("edit-user", {
-    pageTitle: "Edit User",
-    user
-  });
+  debug(`Deleting user [${id}] ${user.username}`);
+
+  // Perform the delete
+  await user.destroy();
+
+  res.redirect("/users");
 });
 
 module.exports = router;

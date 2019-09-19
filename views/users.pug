@@ -10,25 +10,33 @@ mixin userRow(user)
       label.sr-only(for=`delete-user-${user.id}`)= `Delete user ${user.id}`
       // Action buttons
       .btn-group(role="group" aria-label="Actions")
-        a.btn.btn-success(
+        button.btn.btn-success(
           role="button" 
-          data-toggle="tooltip" 
-          data-placement="top" 
+          data-toggle="modal" 
+          data-target="#editUserModal"
+          data-placement="top"
+          data-tooltip="true"
+          data-userid= user.id
+          data-username= user.username
+          data-discordid= user.discordId
           title="Edit user" 
           id=`edit-user-${user.id}`
-          href=`/users/edit/${user.id}`
         )
           span.oi.oi-pencil(aria-hidden="true")
         a.btn.btn-danger(
           role="button" 
-          data-toggle="tooltip" 
+          data-toggle="modal"
+          data-target="#deleteUserModal"
           data-placement="top" 
+          data-tooltip="true"
+          data-userid= user.id
+          data-username= user.username
+          data-discordid= user.discordId
           title="Delete user" 
           id=`delete-user-${user.id}`
           href=`/users/delete/${user.id}`
         )
           span.oi.oi-trash(aria-hiden="true")
-
 
 mixin paginationControls
   // The total number of pages for the pagination control
@@ -36,7 +44,7 @@ mixin paginationControls
   // The current page (in the range 1 ... numPages)
   - const currentPage = Math.floor(offset/limit) + 1;
   // How many pages to show in the pagination controls.
-  - const maxPages = 5;
+  - const maxPages = 3;
   // The first page to show in the pagination controls.
   - let firstPage = Math.max(Math.floor(currentPage - (maxPages / 2)), 0);
   // Last page to show in the pagination controls.
@@ -87,12 +95,63 @@ mixin paginationControls
           href=`/users?q=${search}&offset=${(numPages-1)*limit}&limit=${limit}`
         ) Last
 
+block append head
+  link(rel="stylesheet" href="/stylesheets/alerts.css")
+
 block append scripts
   script.
-    // Enable tooltips on elements with a data-toggle="tooltip" attribute.
+    // Enable tooltips on elements with a data-tooltip="true" attribute.
     $(function () {
-      $('[data-toggle="tooltip"]').tooltip()
-    })
+      $("[data-tooltip='true']").tooltip({
+        trigger: "hover"  // This breaks tootips on mobile but it's better than having the tootip appear over the modal.
+      });
+      // Hide the tooltip if the button is clicked.
+      $("[data-tooltip='true']").on("click", function() {
+        $(this).tooltip("hide");
+      });
+
+      // Populate the edit user modal with data on show.
+      $("#editUserModal").on("show.bs.modal", function(event) {
+        var button = $(event.relatedTarget); // Button that triggered the event.
+        var userId = button.data("userid");
+        var username = button.data("username");
+        var discordId = button.data("discordid");
+        var modal = $(this);
+        var form = modal.find("form");
+        form.attr("action", `/users/edit/${userId}`);
+        // Without this, the form never gets submitted when used in a 
+        // bootstrap modal. I think it's because of the data-toggle="modal"
+        // on the submit button overrides the form submit event.
+        form.find("[type='submit']").on("click", function() {
+          form.submit();
+        });
+        modal.find(".modal-title").text(`Edit ${username}`);
+        modal.find("#userId").val(userId);
+        modal.find("#username").val(username);
+        modal.find("#discordId").val(discordId);
+      });
+
+      // Populate the delete user modal with data on show.
+      $("#deleteUserModal").on("show.bs.modal", function(event) {
+        var button = $(event.relatedTarget); // Button that triggered the event.
+        var userId = button.data("userid");
+        var username = button.data("username");
+        var discordId = button.data("discordid");
+        var modal = $(this);
+        var form = modal.find("form");
+        form.attr("action", `/users/delete/${userId}`);
+        // Without this, the form never gets submitted when used in a 
+        // bootstrap modal. I think it's because of the data-toggle="modal"
+        // on the submit button overrides the form submit event.
+        form.find("[type='submit']").on("click", function() {
+          form.submit();
+        });
+        modal.find(".modal-title").text(`Delete ${username}`);
+        modal.find("#userId").val(userId);
+        modal.find("#username").val(username);
+        modal.find("#discordId").val(discordId);
+      });
+    });
 
 block content
   main.flex-shrink-0(role="main")
@@ -137,3 +196,73 @@ block content
             +userRow(user)
 
       +paginationControls()
+
+  // User Edit Modal dialog.
+  .modal.fade#editUserModal(tabindex="-1" role="dialog" aria-labelledby="editUserModalTitle" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title#editUserModalTitle Edit User
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        form(method="post" action="/users/edit/:id")
+          .modal-body
+            fieldset(disabled)
+              .form-group.row
+                label.col-sm-3.col-form-label(for="userId") User ID
+                .col-sm-9
+                  input.form-control#userId(type="text" value="ID" name="userId" readonly)
+            .form-group.row
+              label.col-sm-3.col-form-label(for="username" ) Username
+              .col-sm-9
+                input.form-control#username(type="text" value="username" name="username")
+            fieldset(disabled)
+              .form-group.row
+                label.col-sm-3.col-form-label(for="discordId") Discord ID
+                .col-sm-9
+                  input.form-control#discordId(type="text" value="discordId" name="discordId" readonly)
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+            button.btn.btn-primary(type="submit" data-dismiss="modal") Save
+
+  // Delete User Modal dialog.
+  .modal.fade#deleteUserModal(tabindex="-1" role="dialog" aria-labelledby="deleteUserModalTitle" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title#deleteUserModalTitle Delete User
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        form(method="post" action="/users/delete/:id")
+          .modal-body
+            | Are you sure you want to delete this user?
+            fieldset(disabled)
+              .form-group.row
+                label.col-sm-3.col-form-label(for="userId") User ID
+                .col-sm-9
+                  input.form-control-plaintext#userId(value="ID" name="userId" readonly)
+              .form-group.row
+                label.col-sm-3.col-form-label(for="username" ) Username
+                .col-sm-9
+                  input.form-control-plaintext#username(value="username" name="username")
+              .form-group.row
+                label.col-sm-3.col-form-label(for="discordId") Discord ID
+                .col-sm-9
+                  input.form-control-plaintext#discordId(type="text" value="discordId" name="discordId" readonly)
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+            button.btn.btn-danger(type="submit" data-dismiss="modal") Delete
+
+  // User updated alert
+  .alert.alert-success.alert-top(role="alert")
+    button.close(type="button" data-dismiss="alert" aria-label="Close")
+      span(aria-hidden="true") &times;
+    h4.alert-heading User edit succeeded.
+    p User was successfully edited.
+
+  // User deleted alert
+  .alert.alert-danger.alert-top(role="alert")
+    button.close(type="button" data-dismiss="alert" aria-label="Close")
+      span(aria-hidden="true") &times;
+    h4.alert-heading User deleted.
+    p User was successfully deleted.

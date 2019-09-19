@@ -127,6 +127,8 @@ if (app.get("env") === "development") {
 // view engine setup
 app.set("views", path.join(__dirname, "views"));
 app.set("view engine", "pug");
+// Remove the next line in production environments.
+app.disable("view cache");
 
 // Use Helmet
 // see: https://expressjs.com/en/advanced/best-practice-security.html#use-helmet

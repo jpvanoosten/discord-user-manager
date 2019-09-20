@@ -153,6 +153,12 @@ block append scripts
       });
     });
 
+    // Clear the search box.
+    function clearSearch()
+    {
+      $("#search").val("");
+    }
+
 block content
   main.flex-shrink-0(role="main")
     .container(style="padding-top:60px")
@@ -166,6 +172,7 @@ block content
             .input-group
               input.form-control#search(type="text" name="q" placeholder="Search" aria-label="search" value=search)
               .input-group-append
+                button.btn.btn-secondary(type="button" onclick="clearSearch()") Clear
                 button.btn.btn-primary(type="submit") Submit
             input#limit(type="hidden" name="limit" value=limit)
             input#offset(type="hidden" name="offset" value=offset)

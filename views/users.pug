@@ -280,15 +280,17 @@ block content
             button.btn.btn-danger(type="submit" data-dismiss="modal") Delete
 
   // User updated alert
-  .alert.alert-success.alert-top.alert-dismissible.fade.show(role="alert")
-    button.close(type="button" data-dismiss="alert" aria-label="Close")
-      span(aria-hidden="true") &times;
-    h4.alert-heading User edit succeeded.
-    p User was successfully edited.
+  if ( userUpdatedMessage )
+    .alert.alert-success.alert-top.alert-dismissible.fade.show(role="alert")
+      button.close(type="button" data-dismiss="alert" aria-label="Close")
+        span(aria-hidden="true") &times;
+      h4.alert-heading User edit succeeded.
+      p= userUpdatedMessage
 
   // User deleted alert
-  .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
-    button.close(type="button" data-dismiss="alert" aria-label="Close")
-      span(aria-hidden="true") &times;
-    h4.alert-heading User deleted.
-    p User was successfully deleted.
+  if ( userDeletedMessage )
+    .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
+      button.close(type="button" data-dismiss="alert" aria-label="Close")
+        span(aria-hidden="true") &times;
+      h4.alert-heading User deleted.
+      p= userDeletedMessage

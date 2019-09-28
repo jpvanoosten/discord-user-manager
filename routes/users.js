@@ -70,7 +70,7 @@ router.get("/", async (req, res) => {
     raw: true // Just get the fields, but don't attach functions (see: https://sequelize.org/master/manual/models-usage.html#raw-queries)
   });
 
-  const flashMessages = req.flash("info");
+  const flashMessages = req.flash("info")[0];
 
   res.render("users", {
     pageTitle: "Users",
@@ -106,6 +106,11 @@ router.post("/edit/:id", async (req, res) => {
     username
   });
 
+  // Send a flash message that the user was edited.
+  req.flash("info", {
+    userUpdatedMessage: `User with id ${id} has been succesfully edited.`
+  });
+
   res.redirect("/users");
 });
 
@@ -129,7 +134,7 @@ router.post("/delete/:id", async (req, res) => {
 
   // Send a flash message that the user was deleted.
   req.flash("info", {
-    userDeletedMessage: `User with id ${id} has been deleted.`
+    userDeletedMessage: `User with id ${id} has been succesfully deleted.`
   });
 
   res.redirect("/users");

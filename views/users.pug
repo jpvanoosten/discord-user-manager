@@ -182,10 +182,10 @@ block content
   main.flex-shrink-0(role="main")
     .container(style="padding-top:60px")
       h1.mt-5 Manage Users
-      p.lead Here you can manage the users on your Discord server.
+      p.lead Manage the users on your Discord server.
 
       .row
-        .col.mb-3
+        .col-auto.mb-3
           form(action="/users" method="get")
             label.sr-only(for="search") search
             .input-group
@@ -195,7 +195,7 @@ block content
                 button.btn.btn-primary(type="submit") Submit
             input#limit(type="hidden" name="limit" value=limit)
             input#offset(type="hidden" name="offset" value=offset)
-        .col.mb-3
+        .col-sm.mb-3
           .input-group
             .input-group-prepend
               label.input-group-text(for="dropdownMenuLink") Show

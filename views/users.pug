@@ -151,6 +151,25 @@ block append scripts
         modal.find("#username").val(username);
         modal.find("#discordId").val(discordId);
       });
+
+      // Alerts "slide up" when closed.
+      $(".alert").on("close.bs.alert", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var alert = $(this).closest(".alert");
+        alert.animate({
+          top: -alert.height() * 1.3,
+          opacity: 0,
+        }, "slow", function() {
+          $(this).remove();
+        });
+      });
+
+      // Automatically close the alert after a few seconds.
+      setTimeout(function() {
+        $(".alert").alert("close");
+      }, 5000);
     });
 
 block content
@@ -254,14 +273,14 @@ block content
             button.btn.btn-danger(type="submit" data-dismiss="modal") Delete
 
   // User updated alert
-  .alert.alert-success.alert-top(role="alert")
+  .alert.alert-success.alert-top.alert-dismissible.fade.show(role="alert")
     button.close(type="button" data-dismiss="alert" aria-label="Close")
       span(aria-hidden="true") &times;
     h4.alert-heading User edit succeeded.
     p User was successfully edited.
 
   // User deleted alert
-  .alert.alert-danger.alert-top(role="alert")
+  .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
     button.close(type="button" data-dismiss="alert" aria-label="Close")
       span(aria-hidden="true") &times;
     h4.alert-heading User deleted.

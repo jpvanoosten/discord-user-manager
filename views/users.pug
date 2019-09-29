@@ -3,8 +3,10 @@ extends layout
 mixin userRow(user)
   tr
     th(scope="row")= user.id
-    td= user.username
-    td= user.discordId
+    td= user.name
+    td
+      if user.isAdmin
+        span.oi.oi-check(aria-hidden="true")
     td
       label.sr-only(for=`edit-user-${user.id}`)= `Edit user ${user.id}`
       label.sr-only(for=`delete-user-${user.id}`)= `Delete user ${user.id}`
@@ -214,8 +216,8 @@ block content
         thead
           tr
             th(scope="col") id
-            th(scope="col") Username
-            th(scope="col") Discord ID
+            th(scope="col") Name
+            th(scope="col") Admin
             th(scope="col") Actions
         tbody
           each user in users

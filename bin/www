@@ -36,13 +36,10 @@ if (!fs.existsSync(settings.db.path)) {
 models.sequelize
   .sync()
   .then(async () => {
-    // Add a default admin user.
-    if (process.env.UPSERT_ADMIN_USER === "true") {
-      await models.Admin.upsert({
-        username: process.env.ADMIN_USERNAME,
-        password: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10)
-      });
-    }
+    await models.User.upsert({
+      email: process.env.ADMIN_EMAIL,
+      isAdmin: true
+    });
 
     if (process.env.UPSERT_TEST_USERS === "true") {
       const numTestUsers = parseInt(process.env.NUM_TEST_USERS || 50);

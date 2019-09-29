@@ -3,8 +3,12 @@ module.exports = (sequelize, DataTypes) => {
   const User = sequelize.define(
     "User",
     {
-      username: { type: DataTypes.STRING, unique: true },
-      discordId: { type: DataTypes.STRING, unique: true }
+      email: { type: DataTypes.STRING, unique: true, isEmail: true },
+      name: { type: DataTypes.STRING },
+      googleId: { type: DataTypes.STRING, unique: true },
+      discordId: { type: DataTypes.STRING, unique: true },
+      nickname: { type: DataTypes.STRING },
+      isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false }
     },
     {}
   );

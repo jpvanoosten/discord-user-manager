@@ -8,7 +8,8 @@
       "type": "node",
       "request": "launch",
       "name": "Debug Server",
-      "program": "${workspaceFolder}/bin/www"
+      "program": "${workspaceFolder}/bin/www",
+      "console": "integratedTerminal"
     },
     {
       "type": "node",

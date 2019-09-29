@@ -29,7 +29,7 @@ router.get("/", (req, res) => {
 router.post("/", (req, res, next) => {
   // Athenticate the user using the "local-strategy" (defined in app.js)
   // Note: The `passport.authenticate` method returns an Express middleware function that must be invoked.
-  passport.authenticate("local-strategy", (err, user, info) => {
+  passport.authenticate("local", (err, user, info) => {
     if (err) {
       debug(`Authentication error ${err}`);
       return next(err);

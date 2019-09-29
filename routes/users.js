@@ -40,12 +40,12 @@ router.get("/", async (req, res) => {
     where = {
       [OR]: [
         {
-          username: {
+          email: {
             [SUBSTRING]: search
           }
         },
         {
-          discordId: {
+          name: {
             [SUBSTRING]: search
           }
         }

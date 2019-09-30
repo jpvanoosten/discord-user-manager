@@ -5,4 +5,30 @@ block content
     .container(style="padding-top:60px")
       h1.mt-5 Discord User Manager
 
-      p.lead This service allows you to join the Discord server using your Google account to determine your nickname.
+      if !codeOfConduct
+        p.lead You must agree to the Code of Conduct before proceeding. Scroll down to agree to the Code of Conduct.
+        include code-of-conduct-content.pug
+
+        .mb-3
+          a.btn.btn-success.btn-lg.btn-block(role="button" href="/?coc=true") Agree
+
+      else if !user
+        p.lead You must be autenticated before joining the Discord server.
+
+        .mb-3.mx-auto(style="max-width: 300px;")
+          a.btn.btn-primary.btn-lg.btn-block.btn-social.btn-google(role="button" href="/google") 
+            img(src="/images/g-logo.png" style="width: 48px;")
+            | Sign in with Google
+
+      else
+        p.lead You are currently signed in.
+        .mb-3(style="width: 18rem;")
+          .card
+            img.card-img-top(src=user.img alt="User Profile")
+            .card-body
+              h5.card-title= user.name
+              p.card-text You are already connected to the Discord server. Open the Discord app to start chatting!
+              a.btn.btn-primary(href="https://discordapp.com/" role="button") Open Discord
+              a.ml-3.btn.btn-secondary(href="/logout" role="button") Logout
+
+

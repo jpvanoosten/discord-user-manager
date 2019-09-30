@@ -20,7 +20,7 @@ const models = require("./models");
 
 const googleRouter = require("./routes/google");
 const indexRouter = require("./routes/index");
-const loginRouter = require("./routes/login");
+// const loginRouter = require("./routes/login");
 const logoutRouter = require("./routes/logout");
 const usersRouter = require("./routes/users");
 
@@ -35,6 +35,16 @@ function isAdmin(req, res, next) {
   }
   // Otherwise redirect to the login page.
   res.redirect("/login");
+}
+
+// Route middleware that checks if the user has agreed to the code of conduct.
+function isCodeOfConduct(req, res, next) {
+  if (req.cookies.codeOfConduct === "true") {
+    return next();
+  }
+
+  // Otherwise redirect to the home page.
+  res.redirect("/");
 }
 
 // Setup passport
@@ -132,6 +142,7 @@ passport.use(
           user
             .update({
               googleId: profile.id,
+              img: profile.photos[0].value,
               name: profile.displayName,
               nickname: profile.displayName
             })
@@ -218,9 +229,9 @@ app.use(function(req, res, next) {
 });
 
 app.use("/", indexRouter);
-app.use("/login", loginRouter);
+// app.use("/login", loginRouter);
 app.use("/logout", logoutRouter);
-app.use("/google", googleRouter);
+app.use("/google", isCodeOfConduct, googleRouter);
 
 // Make sure only logged in users can access the /users page.
 app.use("/users", isAdmin, usersRouter);

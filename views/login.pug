@@ -1,21 +1,34 @@
 extends layout
 
 block append head
-  link(rel="stylesheet" href="stylesheets/signin.css")
+  link(rel="stylesheet" href="/css/signin.css")
 
 block content
-  form.form-signin.text-center(action="/login" method="post")
-    h1.h3.mb-3.font-weight-normal Please sign in
-    p.lead This is for administrators only.
-    .form-group
-      label.sr-only(for="username") Username
-      input.form-control#username(class=(usernameError && "is-invalid")  type="text" placeholder="Username" name="username" value=username required autofocus)
-      if usernameError
-        .invalid-feedback= usernameError
-    .form-group
-      label.sr-only(for="password") Password
-      input.form-control#password(class=(passwordError && "is-invalid") type="password" placeholder="Password" name="password" required)
-      if passwordError
-        .invalid-feedback= passwordError
-    button.btn.btn-primary(type="submit") Submit
+  main.flex-shrink-0(role="main")
+    .container(style="padding-top:60px")
+      .card.my-5.mx-auto.login(style="width:350px;")
+        form.form-signin.text-center(action="/login" method="post")
+          .card-body.text-center
+            h1.h3.mb-3.font-weight-normal Please sign in
+            .mb-3.mx-auto(style="max-width: 300px;")
+              a.btn.btn-primary.btn-lg.btn-block.btn-social.btn-google(role="button" href="/google") 
+                img(src="/images/g-logo.png" style="width: 48px;")
+                | Sign in with Google
+
+            .division
+              .line.l
+              span or
+              .line.r
+
+            .form-group
+              label.sr-only(for="username") Username
+              input.form-control#username(class=(usernameError && "is-invalid")  type="email" placeholder="Username" name="username" value=username required autofocus)
+              if usernameError
+                .invalid-feedback= usernameError
+            .form-group
+              label.sr-only(for="password") Password
+              input.form-control#password(class=(passwordError && "is-invalid") type="password" placeholder="Password" name="password" required)
+              if passwordError
+                .invalid-feedback= passwordError
+            button.btn.btn-primary.btn-lg.btn-block(type="submit") Login
 

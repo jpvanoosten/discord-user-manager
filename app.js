@@ -20,7 +20,7 @@ const models = require("./models");
 
 const googleRouter = require("./routes/google");
 const indexRouter = require("./routes/index");
-// const loginRouter = require("./routes/login");
+const loginRouter = require("./routes/login");
 const logoutRouter = require("./routes/logout");
 const usersRouter = require("./routes/users");
 
@@ -229,7 +229,7 @@ app.use(function(req, res, next) {
 });
 
 app.use("/", indexRouter);
-// app.use("/login", loginRouter);
+app.use("/login", loginRouter);
 app.use("/logout", logoutRouter);
 app.use("/google", isCodeOfConduct, googleRouter);
 

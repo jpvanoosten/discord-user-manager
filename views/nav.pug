@@ -6,10 +6,10 @@ mixin navItem(href, name)
         span.sr-only (current)
 
 
-header
-  nav.navbar.navbar-expand-md.navbar-light.bg-light.fixed-top
+header.fixed-top
+  nav.navbar.navbar-expand-md.navbar-light.bg-light
     a.navbar-brand(href="/") 
-      img(src="/images/brand_logo.svg" height="60")
+      img(src="/images/brand_logo.svg" style="max-width: 100%;")
     button.navbar-toggler(type="button" data-toggle="collapse" data-target="#navbarCollapse" aria-controls="navbarCollapse" aria-expanded="false" aria-label="Toggle navigation")
       span.navbar-toggler-icon
     .collapse.navbar-collapse#navbarCollapse

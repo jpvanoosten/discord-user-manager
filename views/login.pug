@@ -6,7 +6,7 @@ block append head
 block content
   main.flex-shrink-0(role="main")
     .container(style="padding-top:60px")
-      .card.my-5.mx-auto.login(style="width:350px;")
+      .card.my-5.mx-auto.login(style="max-width:350px;")
         form.form-signin.text-center(action="/login" method="post")
           .card-body.text-center
             h1.h3.mb-3.font-weight-normal Please sign in
@@ -15,10 +15,8 @@ block content
                 img(src="/images/g-logo.png" style="width: 48px;")
                 | Sign in with Google
 
-            .division
-              .line.l
-              span or
-              .line.r
+            .division.mb-3
+              span.px-3 admin login
 
             .form-group
               label.sr-only(for="username") Username
@@ -30,5 +28,5 @@ block content
               input.form-control#password(class=(passwordError && "is-invalid") type="password" placeholder="Password" name="password" required)
               if passwordError
                 .invalid-feedback= passwordError
-            button.btn.btn-primary.btn-lg.btn-block(type="submit") Login
+            button.btn.btn-primary.btn-lg.btn-block(type="submit") Log in
 

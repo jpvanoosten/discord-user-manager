@@ -224,7 +224,7 @@ app.use(express.static(path.join(__dirname, "public")));
 // Add local variables so they are available to all PUG templates.
 app.use(function(req, res, next) {
   // Has the user agreed to the code of conduct?
-  res.locals.codeOfConduct = req.cookies.codeOfConduct;
+  res.locals.codeOfConduct = req.cookies.codeOfConduct === "true";
   res.locals.path = req.path;
   res.locals.user = req.user;
   next();

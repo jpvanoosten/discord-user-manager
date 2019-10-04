@@ -11,7 +11,7 @@ block content
       .container
         .card-deck
           .card
-            img.card-img-top(src="/images/code-of-conduct.jpg" alt="Placeholder Image")
+            img.card-img-top(src="/images/code-of-conduct.png" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 1
               if codeOfConduct
@@ -21,7 +21,7 @@ block content
                 p.card-text Accept the Code of Conduct.
                 button.btn.btn-primary.btn-block.mt-auto(type="button" data-toggle="modal" data-target="#codeOfConductModal") Code of Conduct
           .card
-            img.card-img-top(src= ( user && user.img ) || "https://via.placeholder.com/150" alt="Placeholder Image")
+            img.card-img-top(src= ( user && user.img ) || "/images/login.png" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 2
               if user
@@ -31,7 +31,7 @@ block content
                 p.card-text Log in using one of the OAuth providers.
                 a.btn.btn-primary.btn-block.mt-auto(href="/login") Log in
           .card
-            img.card-img-top(src="https://via.placeholder.com/150" alt="Placeholder Image")
+            img.card-img-top(src="/images/discord.png" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 3
               p.card-text Log in to Discord.

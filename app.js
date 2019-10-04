@@ -16,11 +16,12 @@ const SequelizeStore = require("connect-session-sequelize")(session.Store);
 
 const models = require("./models");
 
-const googleRouter = require("./routes/google");
 const indexRouter = require("./routes/index");
 const loginRouter = require("./routes/login");
 const logoutRouter = require("./routes/logout");
 const usersRouter = require("./routes/users");
+const googleRouter = require("./routes/google");
+const discordRouter = require("./routes/discord");
 
 // Simple route middleware to ensure user is authenticated.
 //   Use this route middleware on any resource that needs to be protected.  If
@@ -153,6 +154,7 @@ app.use("/", indexRouter);
 app.use("/login", isCodeOfConduct, loginRouter);
 app.use("/logout", isAuthenticated, logoutRouter);
 app.use("/google", isCodeOfConduct, googleRouter);
+app.use("/discord", isCodeOfConduct, isAuthenticated, discordRouter);
 
 // Make sure only logged in users can access the /users page.
 app.use("/users", isAdmin, usersRouter);

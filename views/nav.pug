@@ -19,8 +19,9 @@ header.fixed-top
         +navItem("/code-of-conduct", "Code of Conduct")
         if user && user.isAdmin
           +navItem("/users", "Users")
-      if user
-        a.btn.btn-primary(role="button" href="/logout") Log out
-      else
-        a.btn.btn-primary(role="button" href="/login") Log in
+      if codeOfConduct
+        if user
+          a.btn.btn-primary(role="button" href="/logout") Log out
+        else
+          a.btn.btn-primary(role="button" href="/login") Log in
 

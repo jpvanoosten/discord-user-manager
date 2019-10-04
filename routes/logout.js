@@ -18,6 +18,7 @@ router.get("/", (req, res, next) => {
         }
         // Clear the cookie that stores the session id.
         res.clearCookie("sid");
+        // Redirect to the home page.
         res.redirect("/");
       }
     });

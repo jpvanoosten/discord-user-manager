@@ -11,21 +11,42 @@ block content
       .container
         .card-deck
           .card
-            img.card-img-top(src="https://via.placeholder.com/150" alt="Placeholder Image")
+            img.card-img-top(src="/images/code-of-conduct.jpg" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 1
-              p.card-text Accept the Code of Conduct.
-              a.btn.btn-primary.btn-block.mt-auto(href="/login") Code of Conduct
+              if codeOfConduct
+                p.card-text Great, you've accepted the Code of Conduct!
+                button.btn.btn-primary.btn-block.mt-auto(disabled type="button" aria-disabled="true") Code of Conduct
+              else
+                p.card-text Accept the Code of Conduct.
+                button.btn.btn-primary.btn-block.mt-auto(type="button" data-toggle="modal" data-target="#codeOfConductModal") Code of Conduct
           .card
             img.card-img-top(src= ( user && user.img ) || "https://via.placeholder.com/150" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 2
-              p.card-text Log in using one of the OAuth providers.
-              a.btn.btn-primary.btn-block.mt-auto(href="/login") Log in
+              if user
+                p.card-text Great, you're are logged in!
+                a.btn.btn-primary.btn-block.mt-auto(href="/logout") Log out
+              else
+                p.card-text Log in using one of the OAuth providers.
+                a.btn.btn-primary.btn-block.mt-auto(href="/login") Log in
           .card
             img.card-img-top(src="https://via.placeholder.com/150" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 3
               p.card-text Log in to Discord.
-              a.btn.btn-primary.btn-block.mt-auto(href="/login") Log in
+              a.btn.btn-primary.btn-block.mt-auto(href="/login") Discord
+
+  .modal.fade#codeOfConductModal(tabindex="-1" role="dialog" aria-labelledby="codeOfConductModalTitle" aria-hidden="true")
+    .modal-dialog(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title#codeOfConductModalTitle Code of Conduct
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        .modal-body
+          include code-of-conduct-content.pug
+        .modal-footer
+          a.btn.btn-success.btn-block(href="/?codeOfConduct=true" role="button") Agree
+
 

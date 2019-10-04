@@ -4,6 +4,7 @@ module.exports = (sequelize, DataTypes) => {
     "User",
     {
       email: { type: DataTypes.STRING, unique: true, isEmail: true },
+      password: { type: DataTypes.STRING },
       img: { type: DataTypes.STRING },
       name: { type: DataTypes.STRING },
       googleId: { type: DataTypes.STRING, unique: true },

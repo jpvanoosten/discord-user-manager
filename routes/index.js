@@ -4,14 +4,13 @@ const router = express.Router();
 
 /* GET home page. */
 router.get("/", function(req, res) {
-  const codeOfConduct = req.query.coc || req.cookies.codeOfConduct === "true";
-  // Set the Code of Conduct cookie if the user agrees to it.
-  res.cookie("codeOfConduct", codeOfConduct);
+  if (req.query.codeOfConduct) {
+    res.cookie("codeOfConduct", req.query.codeOfConduct);
+  }
 
   // eslint-disable-next-line no-unused-vars
   res.render("index", {
-    pageTitle: "Home",
-    codeOfConduct
+    pageTitle: "Home"
   });
 });
 

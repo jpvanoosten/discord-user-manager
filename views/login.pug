@@ -20,7 +20,7 @@ block content
 
             .form-group
               label.sr-only(for="username") Username
-              input.form-control#username(class=(usernameError && "is-invalid")  type="email" placeholder="Username" name="username" value=username required autofocus)
+              input.form-control#username(class=(usernameError && "is-invalid")  type="text" placeholder="Username" name="username" value=username required autofocus)
               if usernameError
                 .invalid-feedback= usernameError
             .form-group

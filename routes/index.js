@@ -4,8 +4,10 @@ const router = express.Router();
 
 /* GET home page. */
 router.get("/", function(req, res) {
-  if (req.query.codeOfConduct) {
-    res.cookie("codeOfConduct", req.query.codeOfConduct);
+  if (req.query.codeOfConduct === "true") {
+    res.cookie("codeOfConduct", req.query.codeOfConduct, {
+      maxAge: 3.154e10 // 1 year.
+    });
   }
 
   // eslint-disable-next-line no-unused-vars

@@ -3,6 +3,7 @@ extends layout
 mixin userRow(user)
   tr
     th(scope="row")= user.id
+    td= user.username
     td= user.name
     td
       if user.isAdmin
@@ -216,6 +217,7 @@ block content
         thead
           tr
             th(scope="col") id
+            th(scope="col") Username
             th(scope="col") Name
             th(scope="col") Admin
             th(scope="col") Actions

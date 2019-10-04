@@ -1,7 +1,7 @@
 extends layout
 
 block content
-  main(role="main" style="padding-top: 60px;")
+  main(role="main" style="padding-top: 86px;")
     section.jumbotron.jumbotron-fluid.text-center(style="padding: 60px 30px;")
       .container
         h1.jumbotron-heading Discord User Manager
@@ -20,16 +20,16 @@ block content
               else
                 p.card-text Accept the Code of Conduct.
                 button.btn.btn-primary.btn-block.mt-auto(type="button" data-toggle="modal" data-target="#codeOfConductModal") Code of Conduct
-          .card
+          .card(class= codeOfConduct || "text-muted")
             img.card-img-top(src= ( user && user.img ) || "/images/login.png" alt="Placeholder Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 2
               if user
-                p.card-text Great, you're are logged in!
+                p.card-text Great, you're are logged in as #{user.name}!
                 a.btn.btn-primary.btn-block.mt-auto(href="/logout") Log out
               else
                 p.card-text Log in using one of the OAuth providers.
-                a.btn.btn-primary.btn-block.mt-auto(href="/login") Log in
+                a.btn.btn-primary.btn-block.mt-auto(role="button" href="/login" class=(codeOfConduct ? "" : "disabled") ) Log in
           .card
             img.card-img-top(src="/images/discord.png" alt="Placeholder Image")
             .card-body.d-flex.flex-column
@@ -47,6 +47,6 @@ block content
         .modal-body
           include code-of-conduct-content.pug
         .modal-footer
-          a.btn.btn-success.btn-block(href="/?codeOfConduct=true" role="button") Agree
+          a.btn.btn-success.btn-block(role="button" href="/?codeOfConduct=true") Agree
 
 

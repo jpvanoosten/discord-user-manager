@@ -37,7 +37,9 @@ models.sequelize
   .sync()
   .then(async () => {
     await models.User.upsert({
-      email: process.env.ADMIN_EMAIL,
+      username: process.env.ADMIN_USERNAME,
+      password: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10),
+      name: "Admin User",
       isAdmin: true
     });
 

@@ -1,5 +1,5 @@
+// eslint-disable-next-line no-unused-vars
 const debug = require("debug")("discord-user-manager:app");
-const bcrypt = require("bcrypt");
 const createError = require("http-errors");
 const cookieParser = require("cookie-parser");
 const express = require("express");
@@ -9,8 +9,6 @@ const logger = require("morgan");
 const session = require("express-session");
 const passport = require("passport");
 const path = require("path");
-const LocalStrategy = require("passport-local").Strategy;
-const GoogleStrategy = require("passport-google-oauth20").Strategy;
 const settings = require("./settings");
 
 // initalize Sequelize with session store
@@ -29,6 +27,15 @@ const usersRouter = require("./routes/users");
 //   the request is authenticated (typically via a persistent login session),
 //   the request will proceed.  Otherwise, the user will be redirected to the
 //   login page.
+function isAuthenticated(req, res, next) {
+  if (req.isAuthenticated()) {
+    return next();
+  }
+
+  // Otherwise redirect to the login page.
+  res.redirect("/login");
+}
+
 function isAdmin(req, res, next) {
   if (req.isAuthenticated() && req.user.isAdmin) {
     return next();
@@ -49,16 +56,16 @@ function isCodeOfConduct(req, res, next) {
 
 // Setup passport
 // Source: https://github.com/pferretti/passport-local-token/blob/master/examples/login/app.js
-// Only serialize the email address of the user.
+// Only serialize the username of the user.
 passport.serializeUser((user, done) => {
-  done(null, user.email);
+  done(null, user.username);
 });
 
-// Deserialize the user from the email address.
-passport.deserializeUser((email, done) => {
+// Deserialize the user from the username address.
+passport.deserializeUser((username, done) => {
   models.User.findOne({
     where: {
-      email
+      username
     }
   })
     .then(user => {
@@ -68,95 +75,6 @@ passport.deserializeUser((email, done) => {
       done(err);
     });
 });
-
-// Use a local database lookup for local logins.
-passport.use(
-  new LocalStrategy((email, password, done) => {
-    // Find user by email in the User table.
-    models.User.findOne({
-      where: {
-        email
-      }
-    })
-      .then(user => {
-        if (user) {
-          // Check for the correct password
-          const passwordsMatch = bcrypt.compareSync(password, user.password);
-          if (passwordsMatch) {
-            // Passwords match, return the user.
-            return done(null, user);
-          } else {
-            // Passwords don't match, return null.
-            return done(null, null, {
-              message: `Invalid password for user ${email}`,
-              passwordError: "Invalid password.",
-              email
-            });
-          }
-        } else {
-          // User with specified username was not found in the Admin table.
-          return done(null, null, {
-            message: `User ${email} not found.`,
-            usernameError: "Invalid email.",
-            email
-          });
-        }
-      })
-      .catch(err => {
-        debug(`An error occured while querying the user: ${err}`);
-        return done(err);
-      });
-  })
-);
-
-// Google strategy for autenticating users with a Google account
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_CLIENT_ID,
-      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_REDIRECT_URI
-    },
-    (accessToken, refreshToken, profile, done) => {
-      // Get the email address of the user:
-      if (!profile.emails || !profile.emails.length) {
-        return done("No email address associated with Google account.");
-      }
-
-      const email = profile.emails[0].value;
-
-      models.User.findOrCreate({
-        where: {
-          email: email
-        }
-      })
-        .then(([user, created]) => {
-          if (created) {
-            debug(`New user added to database: ${profile.displayName}`);
-          } else {
-            debug(
-              `User already registered to database: ${profile.displayName}`
-            );
-          }
-
-          user
-            .update({
-              googleId: profile.id,
-              img: profile.photos[0].value,
-              name: profile.displayName,
-              nickname: profile.displayName
-            })
-            .then(() => {
-              done(null, user);
-            });
-        })
-        .catch(err => {
-          debug(`An error occured when adding user: ${err}`);
-          done(err);
-        });
-    }
-  )
-);
 
 const app = express();
 
@@ -224,15 +142,16 @@ app.use(express.static(path.join(__dirname, "public")));
 // Add local variables so they are available to all PUG templates.
 app.use(function(req, res, next) {
   // Has the user agreed to the code of conduct?
-  res.locals.codeOfConduct = req.cookies.codeOfConduct === "true";
+  res.locals.codeOfConduct =
+    req.query.codeOfConduct === "true" || req.cookies.codeOfConduct === "true";
   res.locals.path = req.path;
   res.locals.user = req.user;
   next();
 });
 
 app.use("/", indexRouter);
-app.use("/login", loginRouter);
-app.use("/logout", logoutRouter);
+app.use("/login", isCodeOfConduct, loginRouter);
+app.use("/logout", isAuthenticated, logoutRouter);
 app.use("/google", isCodeOfConduct, googleRouter);
 
 // Make sure only logged in users can access the /users page.

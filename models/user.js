@@ -9,7 +9,9 @@ module.exports = (sequelize, DataTypes) => {
       name: { type: DataTypes.STRING },
       googleId: { type: DataTypes.STRING, unique: true },
       discordId: { type: DataTypes.STRING, unique: true },
-      nickname: { type: DataTypes.STRING },
+      discordUsername: { type: DataTypes.STRING, unique: true },
+      discordDiscriminator: { type: DataTypes.STRING },
+      discordAvatar: { type: DataTypes.STRING },
       isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false }
     },
     {}

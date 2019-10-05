@@ -7,35 +7,46 @@ block content
         h1.jumbotron-heading Discord User Manager
         p.lead.text-muted The Discord User Manager allows you to manage the users that can join your discord server.
 
+    //- Compute the current step.
+    //- 1. The user hasn't accepted the code of conduct yet,
+    //- 2. The user has accepted the code of conduct, but isn't logged in.
+    //- 3. The user has accepted the code of conduct, is logged in, but hasn't linked their Discord account.
+    //- 4. All steps are complete!
+    - const step = user && user.discordId ? 4 : user ? 3 : codeOfConduct ? 2 : 1;
     .py-5
       .container
         .card-deck
           .card
-            img.card-img-top(src="/images/code-of-conduct.png" alt="Placeholder Image")
+            img.card-img-top(src="/images/code-of-conduct.png" alt="Code of Conduct Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 1
-              if codeOfConduct
+              if step > 1
                 p.card-text Great, you've accepted the Code of Conduct!
                 button.btn.btn-primary.btn-block.mt-auto(disabled type="button" aria-disabled="true") Code of Conduct
               else
                 p.card-text Accept the Code of Conduct.
                 button.btn.btn-primary.btn-block.mt-auto(type="button" data-toggle="modal" data-target="#codeOfConductModal") Code of Conduct
-          .card(class= codeOfConduct || "text-muted")
-            img.card-img-top(src= ( user && user.img ) || "/images/login.png" alt="Placeholder Image")
+          .card(class= step < 2 && "text-muted")
+            img.card-img-top(src= ( user && user.img ) || "/images/login.png" alt="User Image")
             .card-body.d-flex.flex-column
               h5.card-title Step 2
-              if user
+              if step > 2
                 p.card-text Great, you're are logged in as #{user.name}!
                 a.btn.btn-primary.btn-block.mt-auto(href="/logout") Log out
               else
                 p.card-text Log in using one of the OAuth providers.
-                a.btn.btn-primary.btn-block.mt-auto(role="button" href="/login" class=(codeOfConduct ? "" : "disabled") ) Log in
-          .card
-            img.card-img-top(src="/images/discord.png" alt="Placeholder Image")
+                a.btn.btn-primary.btn-block.mt-auto(role="button" href="/login" class= ( step < 2 && "disabled" ) ) Log in
+          .card(class= step < 3 && "text-muted")
+            img.card-img-top(src= (user && user.discordAvatar ) || "/images/discord.png" alt="Discord Avatar")
             .card-body.d-flex.flex-column
               h5.card-title Step 3
-              p.card-text Log in to Discord.
-              a.btn.btn-primary.btn-block.mt-auto(href="/discord") Discord
+              if step > 3
+                p.card-text Great, you're logged in to Discord as 
+                  a(href="https://discordapp.com/channels/@me" target="_blank")= `${user.discordUsername}#${user.discordDiscriminator}`
+                a.btn.btn-primary.btn-block.mt-auto(href="https://discordapp.com" target="_blank") Open Discord
+              else
+                p.card-text Log in to Discord.
+                a.btn.btn-primary.btn-block.mt-auto(href="/discord" class= ( step < 3 && "disabled")) Discord Log in
 
   .modal.fade#codeOfConductModal(tabindex="-1" role="dialog" aria-labelledby="codeOfConductModalTitle" aria-hidden="true")
     .modal-dialog(role="document")

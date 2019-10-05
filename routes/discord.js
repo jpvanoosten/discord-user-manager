@@ -14,26 +14,41 @@ passport.use(
       scope: ["identify", "email", "guilds", "guilds.join"]
     },
     (accessToken, refreshToken, profile, done) => {
-      debug(profile);
       done(null, profile);
     }
   )
 );
 
-/* GET Discrod Login page. */
+/* GET Discord Login page. */
 router.get("/", passport.authenticate("discord"));
 
 /* Discord login redirect URI */
-router.get(
-  "/callback",
-  passport.authenticate("discord", {
-    failureRedirect: "/"
-  }),
-  (req, res) => {
-    debug("Discord user successfully logged in.");
-    // Authentication successful, redirect home.
+router.get("/callback", (req, res, next) => {
+  passport.authenticate("discord", async (err, profile) => {
+    if (!req.user) {
+      // The user must be authenticated in order to
+      // associate with a Discord user account.
+      debug("User not logged in.");
+      // Redirect to the login page.
+      return res.redirect("/login");
+    }
+
+    debug("Discord user succeffully logged in.");
+    debug(profile);
+
+    // Update the user's discordId and discordAvatar
+    const user = req.user;
+
+    await user.update({
+      discordId: profile.id,
+      discordUsername: profile.username,
+      discordDiscriminator: profile.discriminator,
+      discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
+    });
+
+    // redirect to the home page.
     res.redirect("/");
-  }
-);
+  })(req, res, next);
+});
 
 module.exports = router;

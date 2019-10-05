@@ -47,8 +47,7 @@ passport.use(
               ),
               googleId: profile.id,
               img: profile.photos[0].value,
-              name: profile.displayName,
-              nickname: profile.displayName
+              name: profile.displayName
             })
             .then(() => {
               done(null, user);

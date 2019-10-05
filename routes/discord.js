@@ -3,6 +3,8 @@ const express = require("express");
 const passport = require("passport");
 const DiscordStrategy = require("passport-discord").Strategy;
 
+const DiscordAdapter = require("../discord/DiscordAdapter");
+
 const router = express.Router();
 
 passport.use(

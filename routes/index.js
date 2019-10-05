@@ -1,4 +1,5 @@
-// const debug = require("debug")("discord-user-manager:index");
+// eslint-disable-next-line no-unused-vars
+const debug = require("debug")("discord-user-manager:index");
 const express = require("express");
 const router = express.Router();
 

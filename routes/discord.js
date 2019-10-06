@@ -41,12 +41,26 @@ router.get("/callback", (req, res, next) => {
     // Update the user's discordId and discordAvatar
     const user = req.user;
 
-    await user.update({
-      discordId: profile.id,
-      discordUsername: profile.username,
-      discordDiscriminator: profile.discriminator,
-      discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
-    });
+    try {
+      await user.update({
+        discordId: profile.id,
+        discordAccessToken: profile.accessToken,
+        discordUsername: profile.username,
+        discordDiscriminator: profile.discriminator,
+        discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
+      });
+
+      // Now add the user to the discord server:
+      await DiscordAdapter.addUser(
+        user.discordId,
+        user.name,
+        user.discordAccessToken
+      );
+    } catch (err) {
+      debug(
+        `An error occured while adding ${user.name} to the Discord server: ${err}`
+      );
+    }
 
     // redirect to the home page.
     res.redirect("/");

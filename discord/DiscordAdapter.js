@@ -11,6 +11,7 @@ class DiscordAdapter {
 
     this.client = new Discord.Client();
     this.client.commands = new Discord.Collection();
+    this.cooldowns = new Discord.Collection();
 
     const commandFiles = fs
       .readdirSync(path.join(__dirname, "commands"))
@@ -40,24 +41,66 @@ class DiscordAdapter {
     const args = message.content.slice(config.prefix.length).split(/ +/);
     const commandName = args.shift().toLowerCase();
 
-    if (!this.client.commands.has(commandName)) {
+    // Check for the command or an alias of the command.
+    const command =
+      this.client.commands.get(commandName) ||
+      this.client.commands.find(
+        cmd => cmd.aliases && cmd.aliases.includes(commandName)
+      );
+
+    if (!command) {
       return message.reply(
         `The ${commandName} command is not one of the recognized commands.`
       );
     }
 
-    const command = this.client.commands.get(commandName);
+    // Check to see if this is a guild only command being executed outside of a guild.
+    if (command.guildOnly && !message.guild) {
+      return message.reply(
+        `The \`${command.name}\` command can only be executed from within a guild server.`
+      );
+    }
 
     // Check if the author has permission to execute the command.
     if (command.permissions) {
       const guildMember = message.guild.member(message.author);
-      if (guildMember && !guildMember.hasPermissions(command.permissions)) {
+      if (guildMember && !guildMember.hasPermission(command.permissions)) {
         return message.reply(
           "You do not have the required permissions to execute that command."
         );
       }
     }
 
+    // Check if the command is on cooldown
+    // source: https://discordjs.guide/command-handling/adding-features.html#cooldowns
+    if (!this.cooldowns.has(command.name)) {
+      this.cooldowns.set(command.name, new Discord.Collection());
+    }
+
+    const now = Date.now();
+    const timestamps = this.cooldowns.get(command.name);
+    const cooldownAmount = (command.cooldown || 0) * 1000;
+
+    if (timestamps.has(message.author.id)) {
+      const expirationTime = timestamps.get(message.author.id) + cooldownAmount;
+
+      if (now < expirationTime) {
+        const timeLeft = ((expirationTime - now) / 1000).toFixed(1);
+        return message.reply(
+          `Please wait ${timeLeft} more second${
+            timeLeft !== 1.0 ? "s" : ""
+          } before executing the ${command.name} command again.`
+        );
+      }
+    }
+
+    if (cooldownAmount > 0) {
+      // Set the timestamp and delete it when the cooldown expires.
+      timestamps.set(message.author.id, now);
+      setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
+    }
+
+    // Check if the command has any arguments.
     if (command.args && !args.length) {
       let errorMessage = `The ${command.name} command expects arguments.`;
       if (command.usage) {
@@ -66,6 +109,7 @@ class DiscordAdapter {
       return message.reply(errorMessage);
     }
 
+    // Try to execute the command.
     try {
       debug(`Processing command: ${command.name}`);
       command.execute(message, args);

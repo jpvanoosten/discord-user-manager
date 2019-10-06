@@ -3,11 +3,13 @@ const discord = require("discord.js");
 
 module.exports = {
   name: "kick",
-  description: "Kick a user from the discord server.",
+  aliases: ["k"],
+  description: "Kick a user from the Discord guild server.",
   args: true,
-  usage: "<user>",
+  usage: "<guildUser>",
   permissions: [discord.Permissions.FLAGS.KICK_MEMBERS],
   guildOnly: true,
+  cooldown: 1,
   execute(message, args) {
     if (!message.mentions.users.size) {
       return message.reply("No user mentioned in kick command.");

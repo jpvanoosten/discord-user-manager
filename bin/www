@@ -42,19 +42,6 @@ models.sequelize
       name: "Admin User",
       isAdmin: true
     });
-
-    if (process.env.UPSERT_TEST_USERS === "true") {
-      const numTestUsers = parseInt(process.env.NUM_TEST_USERS || 50);
-      const testUsers = new Array(numTestUsers).fill(null).map((user, i) => ({
-        id: i,
-        username: `Test${i}`,
-        discordId: `discordId${i}`
-      }));
-
-      await models.User.bulkCreate(testUsers, {
-        updateOnDuplicate: ["username", "discordId"]
-      });
-    }
   })
   .then(() => {
     debug("Database synchronization succeeded.");

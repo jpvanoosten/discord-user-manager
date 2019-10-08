@@ -1,3 +1,7 @@
+/**
+ * This is the Sequilize configuration file.
+ */
+
 const path = require("path");
 const settings = require("../settings");
 

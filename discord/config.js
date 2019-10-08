@@ -1,3 +1,8 @@
+/**
+ * Configuration settings specifically for the Discord Bot
+ * @see {@link DiscordAdapter}.
+ */
+
 module.exports = {
   // Prefix for bot commands.
   prefix: "!",
@@ -10,5 +15,17 @@ module.exports = {
   // Channel to log messages to.
   logChannel: "logs",
   // Default role for new members.
-  defaultRole: "student"
+  defaultRole: "student",
+  // Reactions to roles
+  roles: {
+    "1⃣": "y1",
+    "2⃣": "y2",
+    "3⃣": "y3",
+    "4⃣": "y4",
+    "🤖": "pr",
+    "🎨": "va",
+    "💭": "dp",
+    "🎓": "alumni",
+    "👍": "test"
+  }
 };

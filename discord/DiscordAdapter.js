@@ -14,13 +14,20 @@ const rawEvents = {
 
 class DiscordAdapter {
   constructor() {
-    this.onReady = this.onReady.bind(this);
+    // Bind functions to class instance.
+    this.addUser = this.addUser.bind(this);
+    this.addRole = this.addRole.bind(this);
+    this.getGuild = this.getGuild.bind(this);
     this.onMessage = this.onMessage.bind(this);
     this.onMessageReactionAdd = this.onMessageReactionAdd.bind(this);
     this.onMessageReactionRemove = this.onMessageReactionRemove.bind(this);
     this.onGuildMemberAdd = this.onGuildMemberAdd.bind(this);
     this.onGuildMemberRemove = this.onGuildMemberRemove.bind(this);
-    this.addUser = this.addUser.bind(this);
+    this.onRaw = this.onRaw.bind(this);
+    this.onReady = this.onReady.bind(this);
+    this.resolveGuildMember = this.resolveGuildMember.bind(this);
+    this.resolveRole = this.resolveRole.bind(this);
+    this.resolveUser = this.resolveUser.bind(this);
 
     this.client = new Discord.Client();
     this.client.commands = new Discord.Collection();
@@ -37,11 +44,12 @@ class DiscordAdapter {
     }
 
     this.client.once("ready", this.onReady);
+    this.client.on("guildMemberAdd", this.onGuildMemberAdd);
+    this.client.on("guildMemberRemove", this.onGuildMemberRemove);
     this.client.on("message", this.onMessage);
     this.client.on("messageReactionAdd", this.onMessageReactionAdd);
     this.client.on("messageReactionRemove", this.onMessageReactionRemove);
-    this.client.on("guildMemberAdd", this.onGuildMemberAdd);
-    this.client.on("guildMemberRemove", this.onGuildMemberRemove);
+    this.client.on("raw", this.onRaw);
 
     this.client.login(config.token);
   }
@@ -199,65 +207,168 @@ class DiscordAdapter {
     }
   }
 
-  // Handle raw events.
-  // source: https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages
+  /**
+   * Handle raw events.
+   * @param {any} event
+   * @see {@link https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/coding-guides/raw-events.md|Raw Events} and {@link https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages|Listening for reactions on old messages}.
+   */
   async onRaw(event) {
     // Ignore any raw events not specified in the rawEvents object
     if (!Object.prototype.hasOwnProperty.call(rawEvents, event.t)) return;
 
     // Use destructring to extract the event data.
     const { d: data } = event;
-    const user = this.client.users.get(data.user_id);
-    const channel =
-      this.client.channels.get(data.channel_id) || (await user.createDM());
+    const guild = this.getGuild();
+    const user = await this.resolveUser(data.user_id);
+    const channel = guild.channels.get(data.channel_id);
+
+    if (!channel) return;
 
     // Ignore cached messages.
     // Without this, reaction events would execute twice for a single
     // reaction if the message was already cached.
     if (channel.messages.has(data.message_id)) return;
 
-    const message = await channel.messages.fetch(data.message_id);
-    const emojiKey = data.emoji.id || data.emoji.name;
-    const reaction =
-      message.reactions.get(emojiKey) || message.reactions.add(data);
+    const message = await channel.fetchMessage(data.message_id);
+
+    // Emojis can have identifiers of name:id format, so we have to account for that case as well
+    const emojiKey = data.emoji.id
+      ? `${data.emoji.name}:${data.emoji.id}`
+      : data.emoji.name;
+
+    let reaction = message.reactions.get(emojiKey);
+
+    if (reaction) {
+      // Adds the currently reacting user to the reaction's users collection.
+      reaction.users.set(data.user_id, user);
+    }
 
     this.client.emit(rawEvents[event.t], reaction, user);
-    if (message.reactions.size === 1) message.reactions.delete(emojiKey);
+  }
+
+  /**
+   * Returns the Discord.Guild specified in the config file.
+   * @returns {Discord.Guild}
+   * @throws If the guild specified by the guildId in the config file was not found.
+   */
+  getGuild() {
+    const guild = this.client.guilds.get(config.guildId);
+    if (!guild) {
+      throw new Error(`Guild with id ${config.guildId} was not found.`);
+    }
+    return guild;
+  }
+
+  /**
+   * Resolve to a Discord.User.
+   * @param {Discord.UserResolvable} userResolvable Data that resolves to give a User object.
+   * @returns {Promise<Discord.User>} The Discord.User that is resolved.
+   * @throws If the userResolvable is of an unexpected type.
+   */
+  async resolveUser(userResolvable) {
+    let user = null;
+    switch (typeof userResolvable) {
+    case "string":
+      user = await this.client.fetchUser(userResolvable);
+      break;
+    case "object":
+      user =
+          userResolvable.user ||
+          userResolvable.owner ||
+          userResolvable.author ||
+          userResolvable;
+      break;
+    case "undefined":
+      break;
+    default:
+      throw new Error(
+        `Unexpected type for userResolvable: ${typeof userResolvable}`
+      );
+    }
+
+    return user;
+  }
+
+  /**
+   * Resolve a Discord GuildMember.
+   * @param {Discord.GuildMemberResolvable} guildMemberResolvable Either the ID of the Discord user (string) or the Discord.User, or the Discord.GuildMember to reslolve to the Discord.User.
+   * @returns {Discord.GuildMember} The Discord.User that was resolved.
+   * @throws If the guildMemberResolvable is not one of the expected types.
+   */
+  resolveGuildMember(guildMemberResolvable) {
+    const guild = this.getGuild();
+    let guildMember = null;
+    switch (typeof guildMemberResolvable) {
+    case "string":
+      guildMember = guild.members.get(guildMemberResolvable);
+      break;
+    case "object":
+      guildMember =
+          guild.members.get(guildMemberResolvable.id) || guildMemberResolvable;
+      break;
+    case "undefined":
+      break;
+    default:
+      throw new Error(
+        `Unexpected type for guildMemberResolvable: ${typeof guildMemberResolvable}`
+      );
+    }
+
+    return guildMember;
+  }
+
+  /**
+   * Resolve a role name to a Discord.Role.
+   * @param {Discord.RoleResolvable} roleResolvable Data that can be resolved to a Role object.
+   * @returns {Discord.Role} The resolved role.
+   */
+  resolveRole(roleResolvable) {
+    const guild = this.getGuild();
+    const role =
+      guild.roles.get(roleResolvable) ||
+      guild.roles.find(role => role.name === roleResolvable) ||
+      roleResolvable;
+
+    return role;
   }
 
   /**
    * Add a user to the Discord server. The
-   * @param {string} discordId The ID of the discord user to add.
+   * @param {Discord.UserResolvable|Discord.GuildMemberResolvable} userResolvable Data that resolves to a User or GuildMember object.
    * @param {string} nick The nickname of the user to add to the server.
    * @param {string} accessToken An OAuth2 access token for the user with the guilds.join scope granted to the bot's application.
-   * @returns {Promise<Discord.GuildMember>} The GuildMember that is added to the server.
+   * @returns {Promise<Discord.GuildMember>} The GuildMember that was added to the server.
+   * @throws If the userResolvable could not be resolved to a User or a GuildMember
    */
-  async addUser(discordId, nick, accessToken) {
-    const guild = this.client.guilds.get(config.guildId);
-    if (!guild || !guild.available) {
+  async addUser(userResolvable, nick, accessToken) {
+    const guild = this.getGuild();
+    if (!guild.available) {
       throw new Error("Guild is currently not available.");
     }
+
     const defaultRole =
-      guild.roles.find(role => role.name === config.defaultRole) ||
-      guild.defaultRole;
-    let guildMember = guild.members.find(
-      guildMember => guildMember.id === discordId
-    );
+      this.resolveRole(config.defaultRole) || guild.defaultRole;
+
+    // First check if the user is already a member of the guild.
+    let guildMember = await this.resolveGuildMember(userResolvable);
 
     if (guildMember) {
-      debug(`User ${guildMember.user.tag} already in the server.`);
+      debug(`User ${guildMember.user.tag} already a member of the guild.`);
+      // Just update the nickname.
       await guildMember.setNickname(nick);
     } else {
-      // Discord user not a member of the guild yet. Add the member and set
-      // the nickname.
-      const user = await this.client.fetchUser(discordId);
-      if (!user) {
-        throw new Error(`User with id ${discordId} was not found.`);
+      // Discord user not a member of the guild yet.
+      const discordUser = await this.resolveUser(userResolvable);
+      if (!discordUser) {
+        throw new Error(
+          `User with id ${userResolvable.id || userResolvable} was not found.`
+        );
       }
 
-      debug(`Adding user ${user.tag}.`);
+      debug(`Adding user ${discordUser.tag} to the guild.`);
 
-      guildMember = await guild.addMember(user, {
+      // Add the member and set the nickname.
+      guildMember = await guild.addMember(discordUser, {
         accessToken,
         nick,
         roles: [defaultRole]
@@ -265,6 +376,32 @@ class DiscordAdapter {
     }
 
     return guildMember;
+  }
+
+  /**
+   * Add a role to a Discord user.
+   * @param {Discord.GuildMemberResolvable} guildMemberResolvable Data that resolves to give a GuildMember object.
+   * @param {Discord.RoleResolvable} roleResolvable Either the name of the role or the Discord.Role to give to the user.
+   * @throws If the user does not resolve to a guild member or the role does not resovle to a valid role.
+   */
+  async addRole(guildMemberResolvable, roleResolvable) {
+    const guildMember = await this.resolveGuildMember(guildMemberResolvable);
+    if (!guildMember) {
+      throw new Error(
+        `User ${guildMemberResolvable.id ||
+          guildMemberResolvable} is not a member of the guild.`
+      );
+    }
+
+    const guildRole = await this.resolveRole(roleResolvable);
+    if (!guildRole) {
+      throw new Error(
+        `Role ${roleResolvable} does not resolve to a valid guild role.`
+      );
+    }
+
+    debug(`Add role ${guildRole.name} to ${guildMember.tag}`);
+    await guildMember.addRole(roleResolvable);
   }
 }
 

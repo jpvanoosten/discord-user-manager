@@ -44,7 +44,6 @@ router.get("/callback", (req, res, next) => {
     try {
       await user.update({
         discordId: profile.id,
-        discordAccessToken: profile.accessToken,
         discordUsername: profile.username,
         discordDiscriminator: profile.discriminator,
         discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
@@ -54,7 +53,7 @@ router.get("/callback", (req, res, next) => {
       await DiscordAdapter.addUser(
         user.discordId,
         user.name,
-        user.discordAccessToken
+        profile.accessToken
       );
     } catch (err) {
       debug(
@@ -65,6 +64,23 @@ router.get("/callback", (req, res, next) => {
     // redirect to the home page.
     res.redirect("/");
   })(req, res, next);
+});
+
+/* Unlink Discord account from user login */
+router.get("/logout", async (req, res, next) => {
+  if (!req.user) {
+    // User is not logged in.
+    debug("User not logged in.");
+    // Redirect to the main page.
+    return res.redirect("/");
+  }
+
+  const user = req.user;
+
+  await DiscordAdapter.removeUser(user.discordId, "Unlinking Discord account.");
+
+  // Redirect to the main page.
+  res.redirect("/");
 });
 
 module.exports = router;

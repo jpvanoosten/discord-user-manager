@@ -43,7 +43,9 @@ block content
               if step > 3
                 p.card-text Great, you're logged in to Discord as 
                   a(href="https://discordapp.com/channels/@me" target="_blank")= `${user.discordUsername}#${user.discordDiscriminator}`
-                a.btn.btn-primary.btn-block.mt-auto(href="https://discordapp.com" target="_blank") Open Discord
+                .mt-auto
+                  a.btn.btn-primary.btn-block(href="https://discordapp.com/channels/@me" target="_blank") Open Discord
+                  a.btn.btn-secondary.btn-block(href="/discord/logout") Unlink Discord
               else
                 p.card-text Log in to Discord.
                 a.btn.btn-primary.btn-block.mt-auto(href="/discord" class= ( step < 3 && "disabled")) Discord Log in

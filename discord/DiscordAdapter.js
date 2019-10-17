@@ -199,7 +199,6 @@ class DiscordAdapter {
       // Remove the Discord related data from the user's record.
       await user.update({
         discordId: null,
-        discordAccessToken: null,
         discordUsername: null,
         discordDiscriminator: null,
         discordAvatar: null
@@ -333,7 +332,7 @@ class DiscordAdapter {
   }
 
   /**
-   * Add a user to the Discord server. The
+   * Add a user to the Discord server.
    * @param {Discord.UserResolvable|Discord.GuildMemberResolvable} userResolvable Data that resolves to a User or GuildMember object.
    * @param {string} nick The nickname of the user to add to the server.
    * @param {string} accessToken An OAuth2 access token for the user with the guilds.join scope granted to the bot's application.
@@ -376,6 +375,23 @@ class DiscordAdapter {
     }
 
     return guildMember;
+  }
+
+  /**
+   * Remove a member from the Discord server.
+   * @param {Discord.UserResolvable} userResolvable Data that resolves to a User or GuildMember object.
+   * @param {string} reason Reason for kicking user.
+   */
+  async removeUser(userResolvable, reason = "Kicked by bot.") {
+    const guildMember = await this.resolveGuildMember(userResolvable);
+
+    if (!guildMember) {
+      debug(
+        `User ${userResolvable.id || userResolvable} not a member of the guild.`
+      );
+    } else {
+      await guildMember.kick(reason);
+    }
   }
 
   /**

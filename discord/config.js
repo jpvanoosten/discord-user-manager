@@ -11,12 +11,12 @@ module.exports = {
   // The guild (or server) ID.
   guildId: process.env.DISCORD_SERVER_ID,
   // Channel to post welcome messages.
-  welcomeChannel: "welcome",
+  welcomeChannel: "general",
   // Channel to log messages to.
   logChannel: "logs",
   // Default role for new members.
   defaultRole: "student",
-  // Reactions to roles
+  // Reactions => roles
   roles: {
     "1⃣": "y1",
     "2⃣": "y2",

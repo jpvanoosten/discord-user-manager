@@ -25,6 +25,7 @@ class DiscordAdapter {
     this.onGuildMemberRemove = this.onGuildMemberRemove.bind(this);
     this.onRaw = this.onRaw.bind(this);
     this.onReady = this.onReady.bind(this);
+    this.resolveChannel = this.resolveChannel.bind(this);
     this.resolveGuildMember = this.resolveGuildMember.bind(this);
     this.resolveRole = this.resolveRole.bind(this);
     this.resolveUser = this.resolveUser.bind(this);
@@ -183,7 +184,7 @@ class DiscordAdapter {
   }
 
   /**
-   * Emitted whenever a member leaves a guild, or is kicked.
+   * Emitted whenever a member leaves a guild, or is kicked or banned.
    * @param {Discord.GuildMember} guildMember
    */
   async onGuildMemberRemove(guildMember) {
@@ -259,6 +260,43 @@ class DiscordAdapter {
   }
 
   /**
+   * Resolve to a Discord.Channel
+   * @param {Discord.ChannelResolvable} channelResolvable Data that can be resolved to give a Channel object.
+   * @returns {Promise<Discord.Channel>} A Discord channel that was resolved or null if the channel couldn't be resolved.
+   */
+  async resolveChannel(channelResolvable) {
+    let channel = null;
+    let guild = this.getGuild();
+
+    channel =
+      guild.channels.get(channelResolvable) ||
+      guild.channels.find(
+        guildChannel => guildChannel.name === channelResolvable
+      );
+
+    if (!channel) {
+      switch (typeof channelResolvable) {
+      case "string":
+        channel = this.client.channels.get(channelResolvable);
+        break;
+      case "object":
+        channel =
+            this.client.channels.get(channelResolvable.id) ||
+            channelResolvable.defaultChannel ||
+            channelResolvable.channel ||
+            channelResolvable;
+        break;
+      default:
+        throw new Error(
+          `Unexpected type for channelResolvable: ${typeof channelResolvable}`
+        );
+      }
+    }
+
+    return channel;
+  }
+
+  /**
    * Resolve to a Discord.User.
    * @param {Discord.UserResolvable} userResolvable Data that resolves to give a User object.
    * @returns {Promise<Discord.User>} The Discord.User that is resolved.
@@ -329,6 +367,17 @@ class DiscordAdapter {
       roleResolvable;
 
     return role;
+  }
+
+  /**
+   * Get the URL of the welcome channel.
+   * @returns {string} The URL of the welcome channel (see welcomeChannel in config.js)
+   */
+  async getWelcomeChannelURL() {
+    const guild = this.getGuild();
+    const channel = await this.resolveChannel(config.welcomeChannel);
+
+    return `https://discordapp.com/channels/${guild.id}/${channel.id}`;
   }
 
   /**

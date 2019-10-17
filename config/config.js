@@ -13,5 +13,8 @@ const db = {
 module.exports = {
   development: db,
   test: db,
-  production: db
+  production: {
+    ...db,
+    logging: false
+  }
 };

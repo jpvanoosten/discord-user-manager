@@ -42,23 +42,24 @@ router.get("/callback", (req, res, next) => {
     const user = req.user;
 
     try {
+      // Now add the user to the discord server:
+      await DiscordAdapter.addUser(profile.id, user.name, profile.accessToken);
+
       await user.update({
         discordId: profile.id,
         discordUsername: profile.username,
         discordDiscriminator: profile.discriminator,
         discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
       });
-
-      // Now add the user to the discord server:
-      await DiscordAdapter.addUser(
-        user.discordId,
-        user.name,
-        profile.accessToken
-      );
     } catch (err) {
       debug(
         `An error occured while adding ${user.name} to the Discord server: ${err}`
       );
+
+      req.flash("info", {
+        discordLoginError:
+          "An error occured when adding you to the Discord server.\nPlease contact the owner of the Discord server for more information."
+      });
     }
 
     // redirect to the home page.
@@ -67,7 +68,7 @@ router.get("/callback", (req, res, next) => {
 });
 
 /* Unlink Discord account from user login */
-router.get("/logout", async (req, res, next) => {
+router.get("/logout", async (req, res) => {
   if (!req.user) {
     // User is not logged in.
     debug("User not logged in.");

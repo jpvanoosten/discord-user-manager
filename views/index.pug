@@ -1,5 +1,31 @@
 extends layout
 
+block append head
+  link(rel="stylesheet" href="/css/alerts.css")
+
+block append scripts
+  script.
+    $(function () {
+      // Alerts "slide up" when closed.
+      $(".alert").on("close.bs.alert", function(event) {
+        event.preventDefault();
+        event.stopPropagation();
+
+        var alert = $(this).closest(".alert");
+        alert.animate({
+          top: -alert.outerHeight(),
+          opacity: 0,
+        }, "slow", function() {
+          $(this).remove();
+        });
+      });
+
+      // Automatically close the alert after a few seconds.
+      setTimeout(function() {
+        $(".alert").alert("close");
+      }, 30000);
+    });
+
 block content
   main(role="main" style="padding-top: 86px;")
     section.jumbotron.jumbotron-fluid.text-center(style="padding: 60px 30px;")
@@ -42,9 +68,9 @@ block content
               h5.card-title Step 3
               if step > 3
                 p.card-text Great, you're logged in to Discord as 
-                  a(href="https://discordapp.com/channels/@me" target="_blank")= `${user.discordUsername}#${user.discordDiscriminator}`
+                  a(href= welcomeChannelURL target="_blank")= `${user.discordUsername}#${user.discordDiscriminator}`
                 .mt-auto
-                  a.btn.btn-primary.btn-block(href="https://discordapp.com/channels/@me" target="_blank") Open Discord
+                  a.btn.btn-primary.btn-block(href= welcomeChannelURL target="_blank") Open Discord
                   a.btn.btn-secondary.btn-block(href="/discord/logout") Unlink Discord
               else
                 p.card-text Log in to Discord.
@@ -63,3 +89,10 @@ block content
           a.btn.btn-success.btn-block(role="button" href="/?codeOfConduct=true") Agree
 
 
+  // Discord login error alert.
+  if ( discordLoginError )
+    .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
+      button.close(type="button" data-dismiss="alert" aria-label="Close")
+        span(aria-hidden="true") &times;
+      h4.alert-heading Discord login error.
+      p= discordLoginError

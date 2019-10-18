@@ -42,15 +42,29 @@ router.get("/callback", (req, res, next) => {
     const user = req.user;
 
     try {
-      // Now add the user to the discord server:
-      await DiscordAdapter.addUser(profile.id, user.name, profile.accessToken);
+      const banReason = await DiscordAdapter.isUserBanned(profile.id);
+      if (!banReason) {
+        // Update user info.
+        await user.update({
+          discordId: profile.id,
+          discordUsername: profile.username,
+          discordDiscriminator: profile.discriminator,
+          discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
+        });
 
-      await user.update({
-        discordId: profile.id,
-        discordUsername: profile.username,
-        discordDiscriminator: profile.discriminator,
-        discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
-      });
+        // Now add the user to the discord server:
+        await DiscordAdapter.addUser(
+          profile.id,
+          user.name,
+          profile.accessToken
+        );
+      } else {
+        debug(`User ${profile.username} is banned: ${banReason}`);
+
+        req.flash("info", {
+          discordLoginError: `Could not connect to the Discord server because your account is banned: ${banReason}. Please contact the Discord owner for more information.`
+        });
+      }
     } catch (err) {
       debug(
         `An error occured while adding ${user.name} to the Discord server: ${err}`

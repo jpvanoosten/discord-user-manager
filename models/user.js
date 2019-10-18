@@ -12,7 +12,8 @@ module.exports = (sequelize, DataTypes) => {
       discordUsername: { type: DataTypes.STRING },
       discordDiscriminator: { type: DataTypes.STRING },
       discordAvatar: { type: DataTypes.STRING },
-      isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false }
+      isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
+      isBanned: { type: DataTypes.BOOLEAN, defaultValue: false }
     },
     {}
   );

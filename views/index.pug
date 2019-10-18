@@ -57,7 +57,9 @@ block content
             .card-body.d-flex.flex-column
               h5.card-title Step 2
               if step > 2
-                p.card-text Great, you're are logged in as #{user.name}!
+                p.card-text Great, you're are logged in as 
+                  strong #{user.name}
+                  | !
                 a.btn.btn-primary.btn-block.mt-auto(href="/logout") Log out
               else
                 p.card-text Log in using one of the OAuth providers.
@@ -68,7 +70,8 @@ block content
               h5.card-title Step 3
               if step > 3
                 p.card-text Great, you're logged in to Discord as 
-                  a(href= welcomeChannelURL target="_blank")= `${user.discordUsername}#${user.discordDiscriminator}`
+                  strong
+                    a(href= welcomeChannelURL target="_blank")= `${user.discordUsername}#${user.discordDiscriminator}`
                 .mt-auto
                   a.btn.btn-primary.btn-block(href= welcomeChannelURL target="_blank") Open Discord
                   a.btn.btn-secondary.btn-block(href="/discord/logout") Unlink Discord

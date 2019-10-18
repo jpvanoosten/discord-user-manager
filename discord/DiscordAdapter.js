@@ -18,6 +18,9 @@ class DiscordAdapter {
     this.addUser = this.addUser.bind(this);
     this.addRole = this.addRole.bind(this);
     this.getGuild = this.getGuild.bind(this);
+    this.banUser = this.banUser.bind(this);
+    this.unban = this.unban.bind(this);
+    this.isUserBanned = this.isUserBanned.bind(this);
     this.onMessage = this.onMessage.bind(this);
     this.onMessageReactionAdd = this.onMessageReactionAdd.bind(this);
     this.onMessageReactionRemove = this.onMessageReactionRemove.bind(this);
@@ -467,6 +470,58 @@ class DiscordAdapter {
 
     debug(`Add role ${guildRole.name} to ${guildMember.tag}`);
     await guildMember.addRole(roleResolvable);
+  }
+
+  /**
+   * Ban a user from the Discord server.
+   * @param {Discord.UserResolvable} userResolvable Data that resolves to give a User object.
+   * @param {string} reason Reason for banning.
+   */
+  async banUser(userResolvable, reason) {
+    const guild = this.getGuild();
+    if (guild && guild.available) {
+      await guild.ban(userResolvable, {
+        reason
+      });
+    }
+  }
+
+  /**
+   * Unban a user from the discord server.
+   * @param {Discord.UserResolvable} userResolvable The user to unban.
+   */
+  async unban(userResolvable) {
+    const guild = this.getGuild();
+    if (guild && guild.available) {
+      try {
+        await guild.unban(userResolvable);
+      } catch (err) {
+        debug(
+          `An error occured while unbanning user ${userResolvable}: ${err}`
+        );
+      }
+    } else {
+      debug(
+        `Failed to unban user ${userResolvable}. Reason: Guild not available.`
+      );
+    }
+  }
+
+  /**
+   * Check to see if a user is banned from the server.
+   * @param {Discord.UserResolvable} userResolvable Data that resolves to give a User object.
+   * @returns {string|null} The reason the user was banned or null if the user is not banned.
+   */
+  async isUserBanned(userResolvable) {
+    const guild = this.getGuild();
+    let banInfo = null;
+    try {
+      banInfo = await guild.fetchBan(userResolvable);
+    } catch (err) {
+      debug(`Error fetching ban info: ${err}`);
+    }
+
+    return banInfo && banInfo.reason;
   }
 }
 

@@ -96,7 +96,7 @@ class DiscordAdapter {
     }
 
     // Check if the author has permission to execute the command.
-    if (command.permissions) {
+    if (command.permissions && message.guild) {
       const guildMember = message.guild.member(message.author);
       if (guildMember && !guildMember.hasPermission(command.permissions)) {
         return message.reply(

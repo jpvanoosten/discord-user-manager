@@ -172,7 +172,32 @@ class DiscordAdapter {
       }
     }
 
-    debug(`${user.username} reacted with ${reaction.emoji.name}.`);
+    // Check if there is a corresponding role for the emoji in the reaction:
+    const roleName = config.roles[reaction.emoji.name];
+    if (roleName) {
+      const role = this.resolveRole(roleName);
+      if (role) {
+        const guildMember = this.resolveGuildMember(user);
+        if (guildMember) {
+          try {
+            await guildMember.addRole(
+              role,
+              `User added ${reaction.emoji.name} reaction.`
+            );
+          } catch (err) {
+            debug(
+              `An error occured while adding role ${roleName} to ${guildMember.nickname}`
+            );
+          }
+        } else {
+          debug(`${user.username} not a guild member.`);
+        }
+      } else {
+        debug(`No role with name ${roleName}.`);
+      }
+    } else {
+      debug(`No configured role for emoji ${reaction.emoji.name}.`);
+    }
   }
 
   async onMessageReactionRemove(reaction, user) {
@@ -187,7 +212,32 @@ class DiscordAdapter {
       }
     }
 
-    debug(`${user.username} removed their ${reaction.emoji.name} reaction.`);
+    // Check if there is a corresponding role for the emoji in the reaction:
+    const roleName = config.roles[reaction.emoji.name];
+    if (roleName) {
+      const role = this.resolveRole(roleName);
+      if (role) {
+        const guildMember = this.resolveGuildMember(user);
+        if (guildMember) {
+          try {
+            await guildMember.removeRole(
+              role,
+              `User removed ${reaction.emoji.name} reaction.`
+            );
+          } catch (err) {
+            debug(
+              `An error occured while removing role ${roleName} to ${guildMember.nickname} `
+            );
+          }
+        } else {
+          debug(`${user.username} not a guild member.`);
+        }
+      } else {
+        debug(`No role with name ${roleName}.`);
+      }
+    } else {
+      debug(`No configured role for emoji ${reaction.emoji.name}.`);
+    }
   }
 
   /**
@@ -334,12 +384,6 @@ class DiscordAdapter {
       guildMember =
           guild.members.get(guildMemberResolvable.id) || guildMemberResolvable;
       break;
-    case "undefined":
-      break;
-    default:
-      throw new Error(
-        `Unexpected type for guildMemberResolvable: ${typeof guildMemberResolvable}`
-      );
     }
 
     return guildMember;
@@ -352,10 +396,21 @@ class DiscordAdapter {
    */
   resolveRole(roleResolvable) {
     const guild = this.getGuild();
-    const role =
-      guild.roles.get(roleResolvable) ||
-      guild.roles.find(role => role.name === roleResolvable) ||
-      roleResolvable;
+    if (!guild || !guild.available) {
+      throw new Error("Guild is currently not available.");
+    }
+
+    let role = null;
+    switch (typeof roleResolvable) {
+    case "string":
+      role =
+          guild.roles.get(roleResolvable) ||
+          guild.roles.find(role => role.name === roleResolvable);
+      break;
+    case "object":
+      role = guild.roles.get(roleResolvable.id) || roleResolvable;
+      break;
+    }
 
     return role;
   }

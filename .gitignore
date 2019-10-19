@@ -2,5 +2,5 @@
 package-lock.json
 yarn.lock
 .env
-data/sqlite.db
+/data/sqlite.db
 /coverage/

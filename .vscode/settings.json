@@ -10,5 +10,6 @@
   "sqltools.useNodeRuntime": true,
   "editor.tabSize": 2,
   "eslint.autoFixOnSave": true,
-  "editor.formatOnSave": true
+  "editor.formatOnSave": true,
+  "jest.showCoverageOnLoad": true
 }

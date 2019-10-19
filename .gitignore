@@ -3,3 +3,4 @@ package-lock.json
 yarn.lock
 .env
 data/sqlite.db
+/coverage/

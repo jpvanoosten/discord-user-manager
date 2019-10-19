@@ -1,3 +1,4 @@
+const EventEmitter = require("events");
 const debug = require("debug")("discord-user-manager:DiscordAdapter");
 const path = require("path");
 const fs = require("fs");
@@ -6,8 +7,9 @@ const Discord = require("discord.js");
 
 const { User } = require("../models");
 
-class DiscordAdapter {
+class DiscordAdapter extends EventEmitter {
   constructor() {
+    super();
     // Bind functions to class instance.
     this.addUser = this.addUser.bind(this);
     this.addRole = this.addRole.bind(this);
@@ -54,6 +56,8 @@ class DiscordAdapter {
 
   onReady() {
     debug("Ready!");
+    // Emit the ready event (usefull for setup of test frameworks like Jest)
+    this.emit("ready");
   }
 
   /**
@@ -327,10 +331,6 @@ class DiscordAdapter {
             channelResolvable.channel ||
             channelResolvable;
         break;
-      default:
-        throw new Error(
-          `Unexpected type for channelResolvable: ${typeof channelResolvable}`
-        );
       }
     }
 
@@ -356,12 +356,6 @@ class DiscordAdapter {
           userResolvable.author ||
           userResolvable;
       break;
-    case "undefined":
-      break;
-    default:
-      throw new Error(
-        `Unexpected type for userResolvable: ${typeof userResolvable}`
-      );
     }
 
     return user;
@@ -381,8 +375,7 @@ class DiscordAdapter {
       guildMember = guild.members.get(guildMemberResolvable);
       break;
     case "object":
-      guildMember =
-          guild.members.get(guildMemberResolvable.id) || guildMemberResolvable;
+      guildMember = guild.members.get(guildMemberResolvable.id);
       break;
     }
 
@@ -408,7 +401,7 @@ class DiscordAdapter {
           guild.roles.find(role => role.name === roleResolvable);
       break;
     case "object":
-      role = guild.roles.get(roleResolvable.id) || roleResolvable;
+      role = guild.roles.get(roleResolvable.id);
       break;
     }
 

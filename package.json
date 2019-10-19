@@ -11,7 +11,8 @@
   "scripts": {
     "configure": "node ./utils/configEnv.js",
     "start": "node ./bin/www",
-    "start:watch": "nodemon ./bin/www"
+    "start:watch": "nodemon ./bin/www",
+    "test": "jest"
   },
   "dependencies": {
     "bcrypt": "^3.0.6",
@@ -36,9 +37,12 @@
     "sqlite3": "^4.1.0"
   },
   "devDependencies": {
+    "@types/jest": "^24.0.19",
     "browser-sync": "^2.26.7",
     "connect-browser-sync": "^2.1.0",
     "eslint": "^6.3.0",
+    "eslint-plugin-jest": "^22.19.0",
+    "jest": "^24.9.0",
     "nodemon": "^1.19.2",
     "sequelize-cli": "^5.5.1",
     "yargs": "^14.0.0"

@@ -20,7 +20,7 @@ module.exports = {
         return message.reply(`${args[0]} is not a valid number.`);
       }
 
-      // Add one to the
+      // Can only delete between 2 and 100 messages.
       amount = Math.min(amount, 100);
       if (amount > 0) {
         try {

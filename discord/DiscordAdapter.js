@@ -6,12 +6,6 @@ const Discord = require("discord.js");
 
 const { User } = require("../models");
 
-// Raw events to handle.
-const rawEvents = {
-  MESSAGE_REACTION_ADD: "messageReactionAdd",
-  MESSAGE_REACTION_REMOVE: "messageReactionRemove"
-};
-
 class DiscordAdapter {
   constructor() {
     // Bind functions to class instance.
@@ -26,14 +20,15 @@ class DiscordAdapter {
     this.onMessageReactionRemove = this.onMessageReactionRemove.bind(this);
     this.onGuildMemberAdd = this.onGuildMemberAdd.bind(this);
     this.onGuildMemberRemove = this.onGuildMemberRemove.bind(this);
-    this.onRaw = this.onRaw.bind(this);
     this.onReady = this.onReady.bind(this);
     this.resolveChannel = this.resolveChannel.bind(this);
     this.resolveGuildMember = this.resolveGuildMember.bind(this);
     this.resolveRole = this.resolveRole.bind(this);
     this.resolveUser = this.resolveUser.bind(this);
 
-    this.client = new Discord.Client();
+    this.client = new Discord.Client({
+      partials: ["MESSAGE", "CHANNEL"] // Allow partials (required for handling reactions on uncached messages)
+    });
     this.client.commands = new Discord.Collection();
     this.cooldowns = new Discord.Collection();
 
@@ -53,7 +48,6 @@ class DiscordAdapter {
     this.client.on("message", this.onMessage);
     this.client.on("messageReactionAdd", this.onMessageReactionAdd);
     this.client.on("messageReactionRemove", this.onMessageReactionRemove);
-    this.client.on("raw", this.onRaw);
 
     this.client.login(config.token);
   }
@@ -67,7 +61,18 @@ class DiscordAdapter {
    * through a text channel the Bot has access to)
    * @param {Discord.Message} message
    */
-  onMessage(message) {
+  async onMessage(message) {
+    if (message.partial) {
+      try {
+        await message.fetch();
+      } catch (err) {
+        debug(`An error occured while fetching partial message: ${err}`);
+        return message.reply(
+          `An error occured while fetching partial message: ${err}`
+        );
+      }
+    }
+
     if (!message.content.startsWith(config.prefix) || message.author.bot) {
       return;
     }
@@ -155,11 +160,33 @@ class DiscordAdapter {
     }
   }
 
-  onMessageReactionAdd(reaction, user) {
+  async onMessageReactionAdd(reaction, user) {
+    // When we receive a reaction we check if the message is partial or not
+    if (reaction.message.partial) {
+      // If the message was removed the fetching might result in an API error, which we need to handle
+      try {
+        await reaction.message.fetch();
+      } catch (err) {
+        debug(`An error occure while fetching partial message: ${err}`);
+        return;
+      }
+    }
+
     debug(`${user.username} reacted with ${reaction.emoji.name}.`);
   }
 
-  onMessageReactionRemove(reaction, user) {
+  async onMessageReactionRemove(reaction, user) {
+    // When we receive a reaction we check if the message is partial or not
+    if (reaction.message.partial) {
+      // If the message was removed the fetching might result in an API error, which we need to handle
+      try {
+        await reaction.message.fetch();
+      } catch (err) {
+        debug(`An error occure while fetching partial message: ${err}`);
+        return;
+      }
+    }
+
     debug(`${user.username} removed their ${reaction.emoji.name} reaction.`);
   }
 
@@ -208,45 +235,6 @@ class DiscordAdapter {
         discordAvatar: null
       });
     }
-  }
-
-  /**
-   * Handle raw events.
-   * @param {any} event
-   * @see {@link https://github.com/AnIdiotsGuide/discordjs-bot-guide/blob/master/coding-guides/raw-events.md|Raw Events} and {@link https://discordjs.guide/popular-topics/reactions.html#listening-for-reactions-on-old-messages|Listening for reactions on old messages}.
-   */
-  async onRaw(event) {
-    // Ignore any raw events not specified in the rawEvents object
-    if (!Object.prototype.hasOwnProperty.call(rawEvents, event.t)) return;
-
-    // Use destructring to extract the event data.
-    const { d: data } = event;
-    const guild = this.getGuild();
-    const user = await this.resolveUser(data.user_id);
-    const channel = guild.channels.get(data.channel_id);
-
-    if (!channel) return;
-
-    // Ignore cached messages.
-    // Without this, reaction events would execute twice for a single
-    // reaction if the message was already cached.
-    if (channel.messages.has(data.message_id)) return;
-
-    const message = await channel.fetchMessage(data.message_id);
-
-    // Emojis can have identifiers of name:id format, so we have to account for that case as well
-    const emojiKey = data.emoji.id
-      ? `${data.emoji.name}:${data.emoji.id}`
-      : data.emoji.name;
-
-    let reaction = message.reactions.get(emojiKey);
-
-    if (reaction) {
-      // Adds the currently reacting user to the reaction's users collection.
-      reaction.users.set(data.user_id, user);
-    }
-
-    this.client.emit(rawEvents[event.t], reaction, user);
   }
 
   /**

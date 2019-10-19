@@ -19,7 +19,7 @@
     "connect-session-sequelize": "^6.0.0",
     "cookie-parser": "~1.4.4",
     "debug": "~2.6.9",
-    "discord.js": "^11.5.1",
+    "discord.js": "https://github.com/discordjs/discord.js#master",
     "dotenv": "^8.1.0",
     "express": "~4.16.1",
     "express-session": "^1.16.2",

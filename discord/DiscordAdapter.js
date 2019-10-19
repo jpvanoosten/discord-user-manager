@@ -180,13 +180,13 @@ class DiscordAdapter {
         const guildMember = this.resolveGuildMember(user);
         if (guildMember) {
           try {
-            await guildMember.addRole(
+            await guildMember.roles.add(
               role,
               `User added ${reaction.emoji.name} reaction.`
             );
           } catch (err) {
             debug(
-              `An error occured while adding role ${roleName} to ${guildMember.nickname}`
+              `An error occured while adding role ${roleName} to ${guildMember.nickname}: ${err}`
             );
           }
         } else {
@@ -220,13 +220,13 @@ class DiscordAdapter {
         const guildMember = this.resolveGuildMember(user);
         if (guildMember) {
           try {
-            await guildMember.removeRole(
+            await guildMember.roles.remove(
               role,
               `User removed ${reaction.emoji.name} reaction.`
             );
           } catch (err) {
             debug(
-              `An error occured while removing role ${roleName} to ${guildMember.nickname} `
+              `An error occured while removing role ${roleName} from ${guildMember.nickname}: ${err}`
             );
           }
         } else {
@@ -347,7 +347,7 @@ class DiscordAdapter {
     let user = null;
     switch (typeof userResolvable) {
     case "string":
-      user = await this.client.fetchUser(userResolvable);
+      user = await this.client.users.fetch(userResolvable);
       break;
     case "object":
       user =
@@ -462,11 +462,16 @@ class DiscordAdapter {
       debug(`Adding user ${discordUser.tag} to the guild.`);
 
       // Add the member and set the nickname.
-      guildMember = await guild.addMember(discordUser, {
-        accessToken,
-        nick,
-        roles: [defaultRole]
-      });
+      try {
+        guildMember = await guild.addMember(discordUser, {
+          accessToken,
+          nick,
+          roles: [defaultRole.id]
+        });
+      } catch (err) {
+        debug(`An error occured while adding user to the guild: ${err}`);
+        throw new Error(err);
+      }
     }
 
     return guildMember;
@@ -557,14 +562,17 @@ class DiscordAdapter {
    */
   async isUserBanned(userResolvable) {
     const guild = this.getGuild();
-    let banInfo = null;
+    const user = await this.resolveUser(userResolvable);
+
+    let ban = null;
     try {
-      banInfo = await guild.fetchBan(userResolvable);
+      const bans = await guild.fetchBans();
+      ban = bans.get(user.id);
     } catch (err) {
       debug(`Error fetching ban info: ${err}`);
     }
 
-    return banInfo && banInfo.reason;
+    return ban && ban.reason;
   }
 }
 

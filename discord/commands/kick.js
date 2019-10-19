@@ -10,7 +10,7 @@ module.exports = {
   permissions: [discord.Permissions.FLAGS.KICK_MEMBERS],
   guildOnly: true,
   cooldown: 1,
-  execute(message, args) {
+  execute: async (message, args) => {
     if (!message.mentions.users.size) {
       return message.reply("No user mentioned in kick command.");
     }
@@ -22,15 +22,13 @@ module.exports = {
 
     const member = message.guild.member(user);
     if (member) {
-      member
-        .kick("Kicked by bot kick command.")
-        .then(() => {
-          message.reply(`Successfully kicked ${user.tag}`);
-        })
-        .catch(err => {
-          debug(err);
-          message.reply(`Unable to kick ${user.tag}`);
-        });
+      try {
+        await member.kick("Kicked by bot kick command.");
+        message.reply(`Successfully kicked ${user.tag}`);
+      } catch (err) {
+        debug(err);
+        message.reply(`Unable to kick ${user.tag}`);
+      }
     } else {
       message.reply(`User ${user.tag} is not a guild member.`);
     }

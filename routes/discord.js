@@ -94,6 +94,14 @@ router.get("/logout", async (req, res) => {
 
   await DiscordAdapter.removeUser(user.discordId, "Unlinking Discord account.");
 
+  // Update user info.
+  await user.update({
+    discordId: null,
+    discordUsername: null,
+    discordDiscriminator: null,
+    discordAvatar: null
+  });
+
   // Redirect to the main page.
   res.redirect("/");
 });

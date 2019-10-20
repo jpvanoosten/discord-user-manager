@@ -36,6 +36,17 @@ router.get("/callback", (req, res, next) => {
       return res.redirect("/login");
     }
 
+    if (err || !profile) {
+      debug(
+        `An error occured logging ${req.user.username} into Discord: ${err}`
+      );
+      req.flash("info", {
+        discordLoginError:
+          "An error occured when adding you to the Discord server.\nWere you able to login to Discord?"
+      });
+      return res.redirect("/");
+    }
+
     debug("Discord user succeffully logged in.");
     debug(profile);
 

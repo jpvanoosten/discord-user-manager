@@ -2,26 +2,104 @@
  * @jest-environment node
  */
 require("dotenv").config();
-process.env.DEBUG = "";
+process.env.DEBUG = null;
+const config = require("./config");
 
 const DiscordAdapter = require("./DiscordAdapter");
-const testUserId = "619584218380632065";
 
 beforeAll(done => {
-  DiscordAdapter.once("ready", () => {
+  DiscordAdapter.once("ready", async () => {
+    const user = await DiscordAdapter.resolveUser(
+      process.env.TEST_USER_DISCORD_ID
+    );
+    const guildMember = DiscordAdapter.resolveGuildMember(
+      process.env.TEST_USER_DISCORD_ID
+    );
+    if (!guildMember) {
+      await DiscordAdapter.addUser(
+        user,
+        "Test User",
+        process.env.TEST_USER_ACCESS_TOKEN
+      );
+    }
     done();
   });
 });
 
-test("can add and remove a user", async () => {
-  const user = await DiscordAdapter.resolveUser(testUserId);
-  const guildMember = DiscordAdapter.resolveGuildMember(testUserId);
-  if (guildMember) {
-    await DiscordAdapter.removeUser(guildMember);
-    // TODO: Need a way to get an access token for this test to work.
-    await DiscordAdapter.addUser(user, "Test User");
-  } else {
-    await DiscordAdapter.addUser(user, "Test User");
-    await DiscordAdapter.removeUser(user);
-  }
+test("resolve channel", async () => {
+  let channel = await DiscordAdapter.resolveChannel(config.welcomeChannel);
+  expect(channel).toHaveProperty("id");
+  channel = await DiscordAdapter.resolveChannel(channel.id);
+  expect(channel).toHaveProperty("id");
+  channel = await DiscordAdapter.resolveChannel(channel);
+  expect(channel).toHaveProperty("id");
+});
+
+test("resolve role", async () => {
+  let role = DiscordAdapter.resolveRole(config.defaultRole);
+  expect(role).toHaveProperty("id");
+  role = DiscordAdapter.resolveRole(role.id);
+  expect(role).toHaveProperty("id");
+  role = DiscordAdapter.resolveRole(role);
+  expect(role).toHaveProperty("id");
+});
+
+test("can add user to role", async () => {
+  const guildMember = await DiscordAdapter.resolveGuildMember(
+    process.env.TEST_USER_DISCORD_ID
+  );
+  expect(guildMember).not.toBeNull();
+  await DiscordAdapter.addRole(guildMember, config.defaultRole);
+});
+
+test("add user to invalid role", async () => {
+  const guildMember = await DiscordAdapter.resolveGuildMember(
+    process.env.TEST_USER_DISCORD_ID
+  );
+  expect(guildMember).not.toBeNull();
+  await expect(
+    DiscordAdapter.addRole(guildMember, "invalid")
+  ).rejects.toThrow();
+});
+
+test("add invalid user to role", async () => {
+  await expect(
+    DiscordAdapter.addRole(null, config.defaultRole)
+  ).rejects.toThrow();
+});
+
+test("welcome URL", async () => {
+  const welcomeURL = DiscordAdapter.getWelcomeChannelURL();
+  expect(welcomeURL).toBeTruthy();
+});
+
+test("add existing user", async () => {
+  await DiscordAdapter.addUser(
+    process.env.TEST_USER_DISCORD_ID,
+    "Existing User",
+    process.env.TEST_USER_ACCESS_TOKEN
+  );
+});
+
+test("add invalid user", async () => {
+  await expect(
+    DiscordAdapter.addUser(
+      null,
+      "Invalid User",
+      process.env.TEST_USER_ACCESS_TOKEN
+    )
+  ).rejects.toThrow();
+});
+
+test("remove invalid user", async () => {
+  await expect(DiscordAdapter.removeUser(null)).rejects.toThrow();
+});
+
+afterAll(async () => {
+  const guildMember = DiscordAdapter.resolveGuildMember(
+    process.env.TEST_USER_DISCORD_ID
+  );
+  expect(guildMember).not.toBeNull();
+  await DiscordAdapter.removeUser(guildMember);
+  await DiscordAdapter.destroy();
 });

@@ -13,7 +13,8 @@ passport.use(
       clientID: process.env.DISCORD_CLIENT_ID,
       clientSecret: process.env.DISCORD_CLIENT_SECRET,
       callbackURL: process.env.DISCORD_REDIRECT_URI,
-      scope: ["identify", "email", "guilds", "guilds.join"]
+      scope: ["identify", "email", "guilds", "guilds.join"],
+      prompt: "none"
     },
     (accessToken, refreshToken, profile, done) => {
       done(null, profile);

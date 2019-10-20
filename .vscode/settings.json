@@ -1,15 +1,6 @@
 {
   "javascript.validate.enable": false,
-  "sqltools.connections": [
-    {
-      "database": ".\\data\\sqlite.db",
-      "dialect": "SQLite",
-      "name": "discord-user-manager"
-    }
-  ],
-  "sqltools.useNodeRuntime": true,
   "editor.tabSize": 2,
   "eslint.autoFixOnSave": true,
-  "editor.formatOnSave": true,
-  "jest.showCoverageOnLoad": true
+  "editor.formatOnSave": true
 }

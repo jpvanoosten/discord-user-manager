@@ -23,6 +23,7 @@ class DiscordAdapter extends EventEmitter {
     this.onGuildMemberAdd = this.onGuildMemberAdd.bind(this);
     this.onGuildMemberRemove = this.onGuildMemberRemove.bind(this);
     this.onReady = this.onReady.bind(this);
+    this.destroy = this.destroy.bind(this);
     this.resolveChannel = this.resolveChannel.bind(this);
     this.resolveGuildMember = this.resolveGuildMember.bind(this);
     this.resolveRole = this.resolveRole.bind(this);
@@ -58,6 +59,13 @@ class DiscordAdapter extends EventEmitter {
     debug("Ready!");
     // Emit the ready event (usefull for setup of test frameworks like Jest)
     this.emit("ready");
+  }
+
+  /**
+   * Destroy the Log out of Discord.
+   */
+  async destroy() {
+    await this.client.destroy();
   }
 
   /**
@@ -320,18 +328,9 @@ class DiscordAdapter extends EventEmitter {
       );
 
     if (!channel) {
-      switch (typeof channelResolvable) {
-      case "string":
-        channel = this.client.channels.get(channelResolvable);
-        break;
-      case "object":
-        channel =
-            this.client.channels.get(channelResolvable.id) ||
-            channelResolvable.defaultChannel ||
-            channelResolvable.channel ||
-            channelResolvable;
-        break;
-      }
+      channel =
+        this.client.channels.get(channelResolvable.id) ||
+        channelResolvable.channel;
     }
 
     return channel;
@@ -510,7 +509,7 @@ class DiscordAdapter extends EventEmitter {
     }
 
     debug(`Add role ${guildRole.name} to ${guildMember.tag}`);
-    await guildMember.addRole(roleResolvable);
+    await guildMember.roles.add(guildRole.id);
   }
 
   /**

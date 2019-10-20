@@ -7,14 +7,15 @@ const settings = require("../settings");
 
 const db = {
   dialect: "sqlite",
-  storage: path.resolve(settings.db.path, settings.db.file)
+  storage: path.resolve(settings.db.path, settings.db.file),
+  logging: false
 };
 
 module.exports = {
-  development: db,
-  test: db,
-  production: {
+  development: {
     ...db,
-    logging: false
-  }
+    logging: true
+  },
+  test: db,
+  production: db
 };

@@ -87,7 +87,7 @@ app.locals = {
 
 // Use browser-sync to refresh the browser if a file changes.
 // https://github.com/schmich/connect-browser-sync
-if (app.get("env") === "development") {
+if (process.env.USE_BROWSER_SYNC === "true") {
   const browserSync = require("browser-sync");
   const bs = browserSync.create().init({
     files: ["**/*.js", "views/*.pug", "public/**"],

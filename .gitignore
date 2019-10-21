@@ -4,3 +4,4 @@ yarn.lock
 .env
 /data/sqlite.db
 /coverage/
+/tmp/

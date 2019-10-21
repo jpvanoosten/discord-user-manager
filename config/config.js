@@ -1,7 +1,7 @@
 /**
- * This is the Sequilize configuration file.
+ * This is the Sequelize configuration file.
  */
-
+const debug = require("debug")("discord-user-manager:sequelize");
 const path = require("path");
 const settings = require("../settings");
 
@@ -14,7 +14,7 @@ const db = {
 module.exports = {
   development: {
     ...db,
-    logging: true
+    logging: debug
   },
   test: db,
   production: db

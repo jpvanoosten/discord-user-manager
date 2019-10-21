@@ -1,4 +1,4 @@
-const debug = require("debug")("discord-user-manager:discord:kick");
+const debug = require("debug")("discord-user-manager:discord:commands:kick");
 const discord = require("discord.js");
 
 module.exports = {

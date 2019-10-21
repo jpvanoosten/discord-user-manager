@@ -41,17 +41,8 @@ class DiscordAdapter extends EventEmitter {
       partials: ["MESSAGE", "CHANNEL"] // Allow partials (required for handling reactions on uncached messages)
     });
     this.client.commands = new Discord.Collection();
+    this.client.reactions = new Discord.Collection();
     this.cooldowns = new Discord.Collection();
-
-    const commandFiles = fs
-      .readdirSync(path.join(__dirname, "commands"))
-      .filter(file => file.endsWith(".js"));
-
-    for (const file of commandFiles) {
-      const command = require(`./commands/${file}`);
-      debug(`Adding command: ${command.name}`);
-      this.client.commands.set(command.name, command);
-    }
 
     this.client.once("ready", this.onReady);
     this.client.on("guildMemberAdd", this.onGuildMemberAdd);
@@ -69,6 +60,30 @@ class DiscordAdapter extends EventEmitter {
   }
 
   onReady() {
+    // Load commands.
+    // This must be done after the constructor for DiscordAdapter is finished
+    // otherwise commands and reactions that depend on DiscordAdapter will get
+    // an incomplete object.
+    const commandFiles = fs
+      .readdirSync(path.join(__dirname, "commands"))
+      .filter(file => file.endsWith(".js"));
+
+    for (const file of commandFiles) {
+      const command = require(path.join(__dirname, "commands", file));
+      debug(`Adding command: ${command.name}`);
+      this.client.commands.set(command.name, command);
+    }
+
+    const reactionFiles = fs
+      .readdirSync(path.join(__dirname, "reactions"))
+      .filter(file => file.endsWith(".js"));
+
+    for (const file of reactionFiles) {
+      const reaction = require(path.join(__dirname, "reactions", file));
+      debug(`Adding reaction: ${reaction.name}`);
+      this.client.reactions.set(reaction.name, reaction);
+    }
+
     debug("Ready!");
     // Emit the ready event (usefull for setup of test frameworks like Jest)
     this.emit("ready");
@@ -280,18 +295,14 @@ class DiscordAdapter extends EventEmitter {
       }
     }
 
-    // Check if there is a corresponding role for the emoji in the reaction:
-    const roleName = config.roles[reaction.emoji.name];
-    if (roleName) {
-      try {
-        await this.addRole(user, roleName);
-      } catch (err) {
-        debug(
-          `An error occured while adding role ${roleName} to ${user.tag}: ${err}`
-        );
-      }
-    } else {
-      debug(`No configured role for emoji ${reaction.emoji.name}.`);
+    try {
+      this.client.reactions.map(r => {
+        if (r.reactionAdd) {
+          r.reactionAdd(reaction, user);
+        }
+      });
+    } catch (err) {
+      debug(`An error occured while processing reactions: ${err}`);
     }
   }
 
@@ -307,18 +318,14 @@ class DiscordAdapter extends EventEmitter {
       }
     }
 
-    // Check if there is a corresponding role for the emoji in the reaction:
-    const roleName = config.roles[reaction.emoji.name];
-    if (roleName) {
-      try {
-        await await this.removeRole(user, roleName);
-      } catch (err) {
-        debug(
-          `An error occured while removing role ${roleName} from ${user.tag}: ${err}`
-        );
-      }
-    } else {
-      debug(`No configured role for emoji ${reaction.emoji.name}.`);
+    try {
+      this.client.reactions.map(r => {
+        if (r.reactionRemove) {
+          r.reactionRemove(reaction, user);
+        }
+      });
+    } catch (err) {
+      debug(`An error occured while processing reactions: ${err}`);
     }
   }
 

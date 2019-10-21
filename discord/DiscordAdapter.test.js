@@ -95,6 +95,21 @@ test("remove invalid user", async () => {
   await expect(DiscordAdapter.removeUser(null)).rejects.toThrow();
 });
 
+test("send log to channel", async () => {
+  await expect(
+    DiscordAdapter.logInfo("This is an info message.")
+  ).not.toBeNull();
+  await expect(
+    DiscordAdapter.logDebug("This is a debug message.")
+  ).not.toBeNull();
+  await expect(
+    DiscordAdapter.logWarning("This is a warning message.")
+  ).not.toBeNull();
+  await expect(
+    DiscordAdapter.logError("This is an error message.")
+  ).not.toBeNull();
+});
+
 afterAll(async () => {
   const guildMember = DiscordAdapter.resolveGuildMember(
     process.env.TEST_USER_DISCORD_ID

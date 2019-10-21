@@ -11,8 +11,14 @@ class DiscordAdapter extends EventEmitter {
   constructor() {
     super();
     // Bind functions to class instance.
+    this.log = this.log.bind(this);
+    this.logInfo = this.logInfo.bind(this);
+    this.logWarning = this.logWarning.bind(this);
+    this.logError = this.logError.bind(this);
+    this.logDebug = this.logDebug.bind(this);
     this.addUser = this.addUser.bind(this);
     this.addRole = this.addRole.bind(this);
+    this.removeRole = this.removeRole.bind(this);
     this.getGuild = this.getGuild.bind(this);
     this.banUser = this.banUser.bind(this);
     this.unban = this.unban.bind(this);
@@ -22,6 +28,8 @@ class DiscordAdapter extends EventEmitter {
     this.onMessageReactionRemove = this.onMessageReactionRemove.bind(this);
     this.onGuildMemberAdd = this.onGuildMemberAdd.bind(this);
     this.onGuildMemberRemove = this.onGuildMemberRemove.bind(this);
+    this.onGuildBanAdd = this.onGuildBanAdd.bind(this);
+    this.onGuildBanRemove = this.onGuildBanRemove.bind(this);
     this.onReady = this.onReady.bind(this);
     this.destroy = this.destroy.bind(this);
     this.resolveChannel = this.resolveChannel.bind(this);
@@ -48,9 +56,14 @@ class DiscordAdapter extends EventEmitter {
     this.client.once("ready", this.onReady);
     this.client.on("guildMemberAdd", this.onGuildMemberAdd);
     this.client.on("guildMemberRemove", this.onGuildMemberRemove);
+    this.client.on("guildBanAdd", this.onGuildBanAdd);
+    this.client.on("guildBanRemove", this.onGuildBanRemove);
     this.client.on("message", this.onMessage);
     this.client.on("messageReactionAdd", this.onMessageReactionAdd);
     this.client.on("messageReactionRemove", this.onMessageReactionRemove);
+    // this.client.on("debug", this.logDebug); // Only enable this event if you need debug messages from the bot.
+    this.client.on("warn", this.logWarning);
+    this.client.on("error", this.logError);
 
     this.client.login(config.token);
   }
@@ -66,6 +79,89 @@ class DiscordAdapter extends EventEmitter {
    */
   async destroy() {
     await this.client.destroy();
+  }
+
+  /**
+   *
+   * @param {string} logLevel The log level. Can be "info", "warning", "error", or "debug"
+   * @param {string|object|Array<string>} message The message to log.
+   * @returns {Promise<Discord.Message|null>}
+   */
+  // eslint-disable-next-line no-unused-vars
+  async log(logLevel, message) {
+    const logColors = {
+      info: "GREEN",
+      warning: "ORANGE",
+      error: "RED",
+      debug: "BLUE"
+    };
+
+    try {
+      const logChannel = await this.resolveChannel(config.logChannel);
+      if (logChannel && logChannel.send) {
+        const args = [...arguments].slice(1);
+        const message = args.map(arg => {
+          switch (typeof arg) {
+          case "string":
+            return arg;
+          case "object":
+            return [...arg];
+          }
+        });
+
+        const logMessage = new Discord.MessageEmbed()
+          .setTitle(logLevel)
+          .setColor(logColors[logLevel])
+          .setDescription(message.join(" "));
+
+        return await logChannel.send(logMessage);
+      }
+    } catch (err) {
+      debug(
+        `An error occured while logging to the ${config.logChannel} channel: ${err}`
+      );
+    }
+  }
+
+  /**
+   * Log an info message.
+   * @param {string|object|Array<string>} message The message to log.
+   * @returns {Promise<Discord.Message|null>} Return the Discord.Message that was sent, or null if the log channel was not found.
+   */
+  // eslint-disable-next-line no-unused-vars
+  async logInfo(message) {
+    return await this.log("info", arguments);
+  }
+
+  /**
+   * Log a warning message.
+   * @param {string|object|Array<string>} message The message to log.
+   * @returns {Promise<Discord.Message|null>} Return the Discord.Message that was sent, or null if the log channel was not found.
+   */
+  // eslint-disable-next-line no-unused-vars
+  async logWarning(message) {
+    return await this.log("warning", arguments);
+  }
+
+  /**
+   * Log an error message.
+   * @param {string|object|Array<string>} message The message to log.
+   * @returns {Promise<Discord.Message|null>} Return the Discord.Message that was sent, or null if the log channel was not found.
+   */
+  // eslint-disable-next-line no-unused-vars
+  async logError(message) {
+    return await this.log("error", arguments);
+  }
+
+  /**
+   * Log a debug message.
+   * @param {string|object|Array<string>} message The message to log.
+   * @returns {Promise<Discord.Message|null>} Return the Discord.Message that was sent, or null if the log channel was not found.
+   */
+  // eslint-disable-next-line no-unused-vars
+  async logDebug(message) {
+    debug(arguments);
+    return await this.log("debug", arguments);
   }
 
   /**
@@ -187,25 +283,12 @@ class DiscordAdapter extends EventEmitter {
     // Check if there is a corresponding role for the emoji in the reaction:
     const roleName = config.roles[reaction.emoji.name];
     if (roleName) {
-      const role = this.resolveRole(roleName);
-      if (role) {
-        const guildMember = this.resolveGuildMember(user);
-        if (guildMember) {
-          try {
-            await guildMember.roles.add(
-              role,
-              `User added ${reaction.emoji.name} reaction.`
-            );
-          } catch (err) {
-            debug(
-              `An error occured while adding role ${roleName} to ${guildMember.nickname}: ${err}`
-            );
-          }
-        } else {
-          debug(`${user.username} not a guild member.`);
-        }
-      } else {
-        debug(`No role with name ${roleName}.`);
+      try {
+        await this.addRole(user, roleName);
+      } catch (err) {
+        debug(
+          `An error occured while adding role ${roleName} to ${user.tag}: ${err}`
+        );
       }
     } else {
       debug(`No configured role for emoji ${reaction.emoji.name}.`);
@@ -227,25 +310,12 @@ class DiscordAdapter extends EventEmitter {
     // Check if there is a corresponding role for the emoji in the reaction:
     const roleName = config.roles[reaction.emoji.name];
     if (roleName) {
-      const role = this.resolveRole(roleName);
-      if (role) {
-        const guildMember = this.resolveGuildMember(user);
-        if (guildMember) {
-          try {
-            await guildMember.roles.remove(
-              role,
-              `User removed ${reaction.emoji.name} reaction.`
-            );
-          } catch (err) {
-            debug(
-              `An error occured while removing role ${roleName} from ${guildMember.nickname}: ${err}`
-            );
-          }
-        } else {
-          debug(`${user.username} not a guild member.`);
-        }
-      } else {
-        debug(`No role with name ${roleName}.`);
+      try {
+        await await this.removeRole(user, roleName);
+      } catch (err) {
+        debug(
+          `An error occured while removing role ${roleName} from ${user.tag}: ${err}`
+        );
       }
     } else {
       debug(`No configured role for emoji ${reaction.emoji.name}.`);
@@ -259,6 +329,8 @@ class DiscordAdapter extends EventEmitter {
   async onGuildMemberAdd(guildMember) {
     debug(`Adding guild member: ${guildMember.user.tag}`);
 
+    this.logInfo(`${guildMember} has been added to the server.`);
+
     const user = await User.findOne({
       where: {
         discordId: guildMember.id
@@ -269,6 +341,8 @@ class DiscordAdapter extends EventEmitter {
       // Update the guild member's nickname to match their given name.
       await guildMember.setNickname(user.name);
     } else {
+      this.logWarning(`${guildMember} was not found in the database.`);
+
       debug(
         `Guild member ${guildMember.user.tag} was not found in the database.`
       );
@@ -281,6 +355,8 @@ class DiscordAdapter extends EventEmitter {
    */
   async onGuildMemberRemove(guildMember) {
     debug(`Removing guild member: ${guildMember.user.tag}`);
+
+    this.logInfo(`${guildMember} was removed from the server.`);
 
     const user = await User.findOne({
       where: {
@@ -297,6 +373,14 @@ class DiscordAdapter extends EventEmitter {
         discordAvatar: null
       });
     }
+  }
+
+  async onGuildBanAdd(guild, user) {
+    await this.logInfo(`${user} was banned.`);
+  }
+
+  async onGuildBanRemove(guild, user) {
+    await this.logInfo(`${user} ban removed.`);
   }
 
   /**
@@ -510,6 +594,38 @@ class DiscordAdapter extends EventEmitter {
 
     debug(`Add role ${guildRole.name} to ${guildMember.tag}`);
     await guildMember.roles.add(guildRole.id);
+
+    await this.logInfo(`${guildMember} has been added to role ${guildRole}`);
+  }
+
+  /**
+   * Remove a role from a Discord user.
+   * @param {Discord.GuildMemberResolvable} guildMemberResolvable Data that resolves to give a GuildMember object.
+   * @param {Discord.RoleResolvable} roleResolvable Either the name of the role or the Discord.Role to remove from the user.
+   * @throws If the user does not resolve to a guild member or the role does not resovle to a valid role.
+   */
+  async removeRole(guildMemberResolvable, roleResolvable) {
+    const guildMember = await this.resolveGuildMember(guildMemberResolvable);
+    if (!guildMember) {
+      throw new Error(
+        `User ${guildMemberResolvable.id ||
+          guildMemberResolvable} is not a member of the guild.`
+      );
+    }
+
+    const guildRole = await this.resolveRole(roleResolvable);
+    if (!guildRole) {
+      throw new Error(
+        `Role ${roleResolvable} does not resolve to a valid guild role.`
+      );
+    }
+
+    debug(`Remove role ${guildRole.name} to ${guildMember.tag}`);
+    await guildMember.roles.remove(guildRole.id);
+
+    await this.logInfo(
+      `${guildMember} has been removed from role ${guildRole}`
+    );
   }
 
   /**

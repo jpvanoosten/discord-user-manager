@@ -13,6 +13,12 @@ router.get("/", async (req, res) => {
     });
   }
 
+  if (req.query.privacyPolicy === "true") {
+    res.cookie("privacyPolicy", req.query.privacyPolicy, {
+      maxAge: 3.154e10 // 1 year.
+    });
+  }
+
   const flashMessages = req.flash("info")[0];
 
   // Get the URL of the Discord welcome channel:

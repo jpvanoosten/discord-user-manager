@@ -515,7 +515,7 @@ class DiscordAdapter extends EventEmitter {
    * @param {string} nick The nickname of the user to add to the server.
    * @param {string} accessToken An OAuth2 access token for the user with the guilds.join scope granted to the bot's application.
    * @returns {Promise<Discord.GuildMember>} The GuildMember that was added to the server.
-   * @throws If the userResolvable could not be resolved to a User or a GuildMember
+   * @throws If the userResolvable could not be resolved to a User or a GuildMember or if the nickname of the user couldn't be updated.
    */
   async addUser(userResolvable, nick, accessToken) {
     const guild = this.getGuild();
@@ -532,7 +532,14 @@ class DiscordAdapter extends EventEmitter {
     if (guildMember) {
       debug(`User ${guildMember.user.tag} already a member of the guild.`);
       // Just update the nickname.
-      await guildMember.setNickname(nick);
+      try {
+        await guildMember.setNickname(nick);
+      } catch (err) {
+        debug(
+          `An error occured while setting the nickname for ${nick}: ${err}`
+        );
+        throw new Error(err);
+      }
     } else {
       // Discord user not a member of the guild yet.
       const discordUser = await this.resolveUser(userResolvable);
@@ -573,7 +580,11 @@ class DiscordAdapter extends EventEmitter {
         `User ${userResolvable.id || userResolvable} not a member of the guild.`
       );
     } else {
-      await guildMember.kick(reason);
+      try {
+        await guildMember.kick(reason);
+      } catch (err) {
+        debug(`An error occured while removing ${guildMember.tag}: ${err}`);
+      }
     }
   }
 
@@ -600,9 +611,14 @@ class DiscordAdapter extends EventEmitter {
     }
 
     debug(`Add role ${guildRole.name} to ${guildMember.tag}`);
-    await guildMember.roles.add(guildRole.id);
-
-    await this.logInfo(`${guildMember} has been added to role ${guildRole}`);
+    try {
+      await guildMember.roles.add(guildRole.id);
+      await this.logInfo(`${guildMember} has been added to role ${guildRole}`);
+    } catch (err) {
+      debug(
+        `An error occured while adding ${guildMember.nickname} to role ${guildRole.name}: ${err}`
+      );
+    }
   }
 
   /**

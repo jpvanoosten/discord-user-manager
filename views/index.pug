@@ -20,9 +20,9 @@ block append scripts
         });
       });
 
-      // Automatically close the alert after a few seconds.
+      // Automatically close the discord login error alert after a few seconds.
       setTimeout(function() {
-        $(".alert").alert("close");
+        $("#discordLoginErrorAlert").alert("close");
       }, 30000);
     });
 
@@ -91,11 +91,24 @@ block content
         .modal-footer
           a.btn.btn-success.btn-block(role="button" href="/?codeOfConduct=true") Agree
 
-
-  // Discord login error alert.
+  //- Discord login error alert.
   if ( discordLoginError )
-    .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
+    .alert.alert-danger.alert-top.alert-dismissible.fade.show#discordLoginErrorAlert(role="alert")
       button.close(type="button" data-dismiss="alert" aria-label="Close")
         span(aria-hidden="true") &times;
       h4.alert-heading Discord login error.
       p= discordLoginError
+
+  //- Privacy Policy alert.
+  if ( !privacyPolicy )
+    .alert.alert-info.alert-top.alert-dismissible.fade.show(role="alert")
+      button.close(type="button" data-dismiss="alert" aria-label="Close")
+        span(aria-hidden="true") &times;
+      h4.alert-heading Privacy Policy.
+      p If you login to this website, your account information is stored in a database. The data collection is required for the functioning purpose of this website. 
+        | By accepting the privacy policy, you agree to the collection of account information and the use of cookies.
+        | For more information, please refer to the full 
+        a(href="/privacy-policy") Privacy Policy.
+
+      a.btn.btn-info(href="/?privacyPolicy=true" aria-label="Accept") Accept
+

@@ -55,6 +55,16 @@ function isCodeOfConduct(req, res, next) {
   res.redirect("/");
 }
 
+// Route middleware that checks if the user has accepted the privacy policy
+function isPrivacyPolicy(req, res, next) {
+  if (req.cookies.privacyPolicy === "true") {
+    return next();
+  }
+
+  // Otherwise redirect to the home page.
+  res.redirect("/");
+}
+
 // Setup passport
 // Source: https://github.com/pferretti/passport-local-token/blob/master/examples/login/app.js
 // Only serialize the username of the user.
@@ -145,16 +155,24 @@ app.use(function(req, res, next) {
   // Has the user agreed to the code of conduct?
   res.locals.codeOfConduct =
     req.query.codeOfConduct === "true" || req.cookies.codeOfConduct === "true";
+  res.locals.privacyPolicy =
+    req.query.privacyPolicy === "true" || req.cookies.privacyPolicy === "true";
   res.locals.path = req.path;
   res.locals.user = req.user;
   next();
 });
 
 app.use("/", indexRouter);
-app.use("/login", isCodeOfConduct, loginRouter);
+app.use("/login", isPrivacyPolicy, isCodeOfConduct, loginRouter);
 app.use("/logout", isAuthenticated, logoutRouter);
-app.use("/google", isCodeOfConduct, googleRouter);
-app.use("/discord", isCodeOfConduct, isAuthenticated, discordRouter);
+app.use("/google", isPrivacyPolicy, isCodeOfConduct, googleRouter);
+app.use(
+  "/discord",
+  isPrivacyPolicy,
+  isCodeOfConduct,
+  isAuthenticated,
+  discordRouter
+);
 
 // Make sure only logged in users can access the /users page.
 app.use("/users", isAdmin, usersRouter);

@@ -1,4 +1,4 @@
-const debug = require("debug")("discord-user-manager:discord:help");
+const debug = require("debug")("discord-user-manager:discord:commands:help");
 const discord = require("discord.js");
 const { prefix } = require("../config");
 

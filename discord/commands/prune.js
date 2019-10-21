@@ -1,4 +1,4 @@
-const debug = require("debug")("discord-user-manager:discord:prune");
+const debug = require("debug")("discord-user-manager:discord:commands:prune");
 const discord = require("discord.js");
 
 module.exports = {

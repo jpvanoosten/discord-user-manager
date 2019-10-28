@@ -77,7 +77,7 @@ yarn
 
 ## Configuration
 
-The **Discord User Manager** uses environment variables to configure a lot of functionality. The [.env.example](.env.example) file contains all of the environment variables used by the **Discord User Manager**.
+The **Discord User Manager** uses environment variables to configure a lot of functionality. The [.env.example] file contains all of the environment variables used by the **Discord User Manager**.
 
 The following table describes the configurable environment varaibles.
 
@@ -101,6 +101,53 @@ The following table describes the configurable environment varaibles.
 | TEST_USER_DISCORD_ID   |                                        | The unique identifer for a [Discord] user. (Only used for testing).                                                                                                                                   |
 | TEST_USER_ACCESS_TOKEN |                                        | An access token for a [Discord] user. (Only used for testing).                                                                                                                                        |
 
+### Auto Configuration
+
+The **Discord User Manager** server can either be manually configured by copying the `.env.example` file to `.env` and modifying the environment varaibles, or you can run the `configure` command to auto-configure many of the required environment variables. To auto-generate the `.env` file based on the [.env.example] file, run the following command:
+
+```bash
+npm run configure
+```
+
+or
+
+```bash
+yarn configure
+```
+
+The `configure` command will configure the `.env` file with automatically generated passwords and secrets based on the contents of the [.env.example] file.
+
+If the `.env` file already exsits in the root directory of the project, then the `configure` command will not overwrite the file. If you want to force the `.env` file to be overwritten, then you can pass the aditional `--force` arguments:
+
+```bash
+npm run configure --force
+```
+
+or
+
+```bash
+yarn configure --force
+```
+
+> **NOTE**: The `.env` file contains sensitive secret information that could allow administrator access to your user's personal information and your Discord Bot. Never commit the `.env` file into version control and never use the [.env.example] file to store secret information since the [.env.example] file is part of version control.
+
+## Google Authentication
+
+In order to allow your users to authenticate with Google, you must first create a Google Cloud Project in the [Google Developer Console].
+
+- Navigate to https://console.developers.google.com/ and sign-in with a Google account.
+- Click **Select a project** from main menu.
+
+![Select a project](docs/images/gcp-1.png)
+
+- Click the **NEW PROJECT** button (top-right) to create a new project, or select an existing project from the list.
+
+![Project name](docs/images/gcp-2.png)
+
+- Give your project a meaningful name (like **discord-user-manager**).
+- Click the **CREATE** button to create the new project.
+
+[.env.example]: .env.example
 [bootstrap]: https://getbootstrap.com/
 [oauth]: https://oauth.net/
 [oauth 2.0]: https://oauth.net/2/

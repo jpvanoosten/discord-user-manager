@@ -51,7 +51,9 @@ In addition to the regular dependencies, the **Discord User Manager** also has t
 
 ## Installation
 
-**Discord User Manager** requires [Node.js] (version 10 or higher) in order to be installed. Either download the source from https://github.com/jpvanoosten/discord-user-manager or install it from the command line:
+**Discord User Manager** requires [Node.js] (version 10 or higher) in order to be installed.
+
+Either download the source from https://github.com/jpvanoosten/discord-user-manager or install it from the command line:
 
 ```bash
 git clone https://github.com/jpvanoosten/discord-user-manager.git
@@ -135,6 +137,8 @@ yarn configure --force
 
 In order to allow your users to authenticate with Google, you must first create a Google Cloud Project in the [Google Developer Console].
 
+### Create a New Project
+
 - Navigate to https://console.developers.google.com/ and sign-in with a Google account.
 - Click **Select a project** from main menu.
 
@@ -146,6 +150,31 @@ In order to allow your users to authenticate with Google, you must first create 
 
 - Give your project a meaningful name (like **discord-user-manager**).
 - Click the **CREATE** button to create the new project.
+
+### OAuth Consent Screen
+
+- From the hamburger menu on the top-left corner of the page, select **APIs & Services > OAuth consent screen**
+
+![OAuth consent](docs/images/gcp-5.png)
+
+- In the **OAuth consent screen** that appears, specify the **Application name**.
+
+![OAuth consent screen](docs/images/gcp-6.png)
+
+- Scroll to the bottom of the page and click the **Save** button.
+
+### Create OAuth client ID
+
+In order to use OAuth 2.0 for allowing users to login to your application, you need to configure a **Web application** for the Google Cloud Project.
+
+![Create OAuth client ID](docs/images/gcp-7.png)
+
+- Give the Web application a **name**. This is the name that will appear on the OAuth 2.0 login screen.
+- TODO: **Authorised redirect URIs**
+
+- In the [Credentials](https://console.developers.google.com/apis/credentials) screen that appears, click the **Create credentials** drop-down and select **OAuth client ID**.
+
+![Create Credentials](docs/images/gcp-4.png)
 
 [.env.example]: .env.example
 [bootstrap]: https://getbootstrap.com/

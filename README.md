@@ -12,12 +12,12 @@ The **Discord User Manager** is built with JavaScript using [Express] and the [P
 
 | Package                     | Semantic Version | Description                                                                                                                     |
 | --------------------------- | ---------------- | ------------------------------------------------------------------------------------------------------------------------------- |
-| [bcrypt]                    | ^3.0.6           | Pasword hashing used for logging into local accounts. Passwords for [OAuth] accounts are not stored locally.                    |
+| [bcrypt]                    | ^5.0.0           | Pasword hashing used for logging into local accounts. Passwords for [OAuth] accounts are not stored locally.                    |
 | [connect-flash]             | ^0.1.1           | Used for passing messages between http requests. Flash messages use session storage to persists messages between http requests. |
 | [connect-session-sequelize] | ^6.0.0           | SQL Session store using [Sequelize] as a storage backend.                                                                       |
 | [cookie-parser]             | ~1.4.4           | Parse the `Cookie` header and populate `req.cookies` property with an object keyed by the cookie name.                          |
 | [debug]                     | ~2.6.9           | A JavaScript debugging utility.                                                                                                 |
-| [discord.js]                | ^12.0.0-dev      | A powerful library for interacting with the Discord API.                                                                        |
+| [discord.js]                | ^12.2.0          | A powerful library for interacting with the Discord API.                                                                        |
 | [dotenv]                    | ^8.1.0           | Loads environment variables from a `.env` file into the `process.env` global variable.                                          |
 | [express]                   | ~4.16.1          | A fast, unopinionated, minimalist web framework for [Node.js].                                                                  |
 | [express-session]           | ^1.16.2          | [Express] middleware which will populate the `req.session` object.                                                              |
@@ -162,6 +162,7 @@ In order to allow your users to authenticate with Google, you must first create 
 ![Oauth consent analytics](docs/images/gcp-8.png)
 
 - In the **OAuth consent screen** that appears, specify the **Application name**.
+- Optionally, you can also add an **Application logo** which will also appear on the OAuth consent screen.
 
 ![OAuth consent screen](docs/images/gcp-6.png)
 
@@ -169,13 +170,13 @@ In order to allow your users to authenticate with Google, you must first create 
 
 ### Create OAuth client ID
 
-In order to use OAuth 2.0 for allowing users to login to your application, you need to configure a **Web application** for the Google Cloud Project.
+In order to use OAuth 2.0 to allow users to login to your application, you need to configure a **Web application** for the Google Cloud Project.
 
 - From the hamburger menu on the top-left corner of the page, select **API & Services > Credentials**.
 
 ![Credentials](docs/images/gcp-9.png)
 
-- Click the **+ CREATE CREDNETIALS** button at the top of the screen.
+- Click the **+ CREATE CREDENTIALS** button at the top of the screen.
 
 ![Create Credentials](docs/images/gcp-10.png)
 
@@ -183,11 +184,11 @@ In order to use OAuth 2.0 for allowing users to login to your application, you n
 
 ![OAuth client ID](docs/images/gcp-11.png)
 
-- Select **Web application** from the **Application type** drop-down menu.
+- Set the **Application type** to **Web application**.
 
 ![Application type](docs/images/gcp-12.png)
 
-- Give the Web application a **name**. This is the name that will appear on the OAuth 2.0 login screen.
+- Give the Web application a **Name**. This is the name that will appear on the OAuth 2.0 login screen.
 
 - Under the **Authorised redirect URIs** section, click the **+ ADD URI** button to add a redirect URI to be used with requests from a web server.
 
@@ -195,7 +196,163 @@ In order to use OAuth 2.0 for allowing users to login to your application, you n
 
 - In order to allow for testing the application on a locally running server, you must add `http://localhost:3000/google/callback` redirect URI.
 
-- Also add the redirect URI that is specified in the `GOOGLE_REDIRECT_URI` configuration environment variable specified in your `.env` file.
+- Also add the redirect URI that is specified in the `GOOGLE_REDIRECT_URI` configuration environment variable specified in your `.env` file in your production environment.
+
+- Click the **CREATE** button on the bottom of the page to create the OAuth client credentials.
+
+![OAuth client created](docs/images/gcp-14.png)
+
+- Copy the **Client ID** and paste it in the value for the `GOOGLE_CLIENT_ID` variable in the `.env` file (never commit this value to version control).
+- Copy the **Client Secret** and paste it in the value for the `GOOGLE_CLIENT_SECRET` variable in the `.env` file (never commit this value to version control).
+
+## Discord Authentication
+
+### Create a Discord Application
+
+In order to allow users to log into Discord and join the Discord server, you must create a Discord application and add a Discord bot in the [Discord Developer Portal].
+
+![Discord Developer Portal](docs/images/ddp-1.png)
+
+- Navitate to https://discord.com/developers and log in with your Discord account.
+- Click the **New Application** button in the top-right corner of the screen.
+
+![Create a Discord application](docs/images/ddp-2.png)
+
+- Give the application a name like **Discord User Manager**. This name will be used to identify your application in the OAuth consent screen.
+- Click the **Create** button to create a new Discord application.
+
+![Discord application information](docs/images/ddp-3.png)
+
+- Copy the **Client ID** and paste it into the value for the `DISCORD_CLIENT_ID` variable in the `.env` file (never commit this value to version control).
+- Copy the **Client Secret** and paste it into the value for the `DISCORD_CLIENT_SECRET` variable in the `.env` file (never commit this value to version control).
+- Select the **OAuth2** settings.
+
+![Discord OAuth2](docs/images/ddp-4.png)
+
+- Click the **Add Redirect** button.
+- In order to test your application on a locally running server, you must add `http://localhost:3000/discord/callback` as a redirect URI.
+- Also add the value of the `DISCORD_REDIRECT_URI` environment variable in the `.env` file in your production environment.
+
+![Redirect URI](docs/images/ddp-5.png)
+
+- Click the **Save Changes** button on the bottom of the screen.
+- Next, select the **Bot** settings.
+
+## Add a Discord Bot
+
+A Discord Bot is a privileged user that can perform certain actions within your Discord server on your behalf.
+
+![Add Discord Bot](docs/images/ddp-6.png)
+
+- Click the **Add Bot** button to add a bot to your Discord application.
+
+![Discord Bot Settings](docs/images/ddp-7.png)
+
+- Give the Discord bot a username such as **Discord User Manager**.
+- Optionally, you can give the Discord bot an image icon. This is the icon that will be used to represent this bot in your Discord server.
+- Since the bot will only be used by your own Discord server, uncheck **Public Bot** setting.
+- Ensure that the rest of the options on the Bot screen are also disabled.
+- Click the **Save Changes** button on the bottom of the screen.
+- Click the **Copy** button under **TOKEN** section and paste the bot token to the value of the `DISCORD_BOT_TOKEN` environment variable in the `.env` file.
+
+### Add Application to your Discord Server
+
+Before the Discord User Manager application can start working to manage the users in your Discord Server, you need to add the Discord application and bot that you created in the previous step to your Discord server.
+
+- Select the **OAuth2** settings again.
+
+![Bot Scopes and Permissions](docs/images/ddp-8.png)
+
+- Scroll down to **Scopes** and check the following scopes:
+  - identity
+  - email
+  - guilds
+  - guilds.join
+  - bot
+- Under **Bot Permissions** select the following permissions:
+  - Manage Roles
+  - Kick Members
+  - Create Instant Invite
+  - Manage Nicknames
+  - Send Messages
+  - Add Reactions
+- Copy the URL in the **Scopes** section and paste it into the address bar of your browser.
+
+![Authorize Discord User Manager](docs/images/ddp-9.png)
+
+- Select the server you want to add the bot to and click the **Continue** button.
+
+![Authorize Discord User Manager](docs/images/ddp-10.png)
+
+- On the next screen that appears, make sure all of the requested permissions are checked.
+- Click the **Authorize** button to add the Discord Bot to your server.
+- If you go to your Discord Server, you should see the **Discord User Manager** bot as a member of your server.
+
+![Discord Server](docs/images/ddp-11.png)
+
+The **Discord User Manager** bot has now been added to your server and is able to perform user management tasks for you.
+
+The bot may appear offline but this is normal if the **Discord User Manager** application is not yet running.
+
+### Configure the Discord Bot
+
+Now that the Discord bot has been added to your Discord server, a few more settings need to be configured on the Discord User Manager server.
+
+- Open the Discord application and go to **User Settings**
+- Select the **Appearance** under **App Settings**
+
+![App Settings](docs/images/ddp-12.png)
+
+- Scroll to the bottom of the page and enable the **Developer Mode** option.
+
+Enabling the **Developer Mode** option will allow you to copy the server ID, user ID, channel ID, and message ID from the Discord application (even when using the desktop application).
+
+![Copy server ID](docs/images/ddp-13.png)
+
+- Right-click on the server icon on the left of the screen and select the **Copy ID** option in the pop-up menu that appears.
+- Paste the server ID into the value of the `DISCORD_SERVER_ID` in the `.env` file.
+
+## Start the Discord User Manager
+
+To start the **Discord User Manager** application, open a terminal and navigate to the root folder where you cloned the discord-user-manager git repository and run the following command:
+
+```bash
+npm run start
+```
+
+Or if using [Yarn]:
+
+```bash
+yarn start
+```
+
+If the service starts correctly, you should see `Listening on port 3000` printed to the console.
+
+Open your browser and navigate to http://localhost:3000.
+
+![Discord User Manager](docs/images/dum-1.png)
+
+If everything worked correctly, you should see the home page for the **Discord User Manager** application (as shown in the image above).
+
+## Verify Discord Bot
+
+If you return to your Discord server, you should see that the **Discord User Manager** bot is online.
+
+To see if the bot responds to commands, type `!ping` in one of the text channels of your server (make sure the bot can read the messages of the channel you use to type bot commands).
+
+![Test Bot Commands](docs/images/ddp-14.png)
+
+If the bot is running correctly, it should reply with `Pong.` printed to the same text channel.
+
+If you want to see a list of possible commands the bot can respond to, use the `!help` bot command. The bot should respond with a direct message that contains list of bot commands that it knows about.
+
+### Add Custom Bot Commands
+
+// TODO: Add custom bot commands.
+
+## Testing
+
+// TODO: How to test the server.
 
 [.env.example]: .env.example
 [bootstrap]: https://getbootstrap.com/
@@ -244,4 +401,4 @@ In order to use OAuth 2.0 for allowing users to login to your application, you n
 [yarn]: https://yarnpkg.com/
 [google developer console]: https://console.developers.google.com/
 [google developer console credentials]: https://console.developers.google.com/apis/credentials
-[discord developer portal]: https://discordapp.com/developers/
+[discord developer portal]: https://discord.com/developers

@@ -157,6 +157,10 @@ In order to allow your users to authenticate with Google, you must first create 
 
 ![OAuth consent](docs/images/gcp-5.png)
 
+- If you are presented with the analytics screen, select the **🖊 EDIT APP** button next to the application name.
+
+![Oauth consent analytics](docs/images/gcp-8.png)
+
 - In the **OAuth consent screen** that appears, specify the **Application name**.
 
 ![OAuth consent screen](docs/images/gcp-6.png)
@@ -167,14 +171,31 @@ In order to allow your users to authenticate with Google, you must first create 
 
 In order to use OAuth 2.0 for allowing users to login to your application, you need to configure a **Web application** for the Google Cloud Project.
 
-![Create OAuth client ID](docs/images/gcp-7.png)
+- From the hamburger menu on the top-left corner of the page, select **API & Services > Credentials**.
+
+![Credentials](docs/images/gcp-9.png)
+
+- Click the **+ CREATE CREDNETIALS** button at the top of the screen.
+
+![Create Credentials](docs/images/gcp-10.png)
+
+- Select **OAuth client ID** from the pop-up list.
+
+![OAuth client ID](docs/images/gcp-11.png)
+
+- Select **Web application** from the **Application type** drop-down menu.
+
+![Application type](docs/images/gcp-12.png)
 
 - Give the Web application a **name**. This is the name that will appear on the OAuth 2.0 login screen.
-- TODO: **Authorised redirect URIs**
 
-- In the [Credentials](https://console.developers.google.com/apis/credentials) screen that appears, click the **Create credentials** drop-down and select **OAuth client ID**.
+- Under the **Authorised redirect URIs** section, click the **+ ADD URI** button to add a redirect URI to be used with requests from a web server.
 
-![Create Credentials](docs/images/gcp-4.png)
+![Redirect URI](docs/images/gcp-13.png)
+
+- In order to allow for testing the application on a locally running server, you must add `http://localhost:3000/google/callback` redirect URI.
+
+- Also add the redirect URI that is specified in the `GOOGLE_REDIRECT_URI` configuration environment variable specified in your `.env` file.
 
 [.env.example]: .env.example
 [bootstrap]: https://getbootstrap.com/

@@ -8,14 +8,14 @@ const settings = require("../settings");
 const db = {
   dialect: "sqlite",
   storage: path.resolve(settings.db.path, settings.db.file),
-  logging: false
+  logging: false,
 };
 
 module.exports = {
   development: {
     ...db,
-    logging: debug
+    logging: debug,
   },
   test: db,
-  production: db
+  production: db,
 };

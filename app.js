@@ -76,13 +76,13 @@ passport.serializeUser((user, done) => {
 passport.deserializeUser((username, done) => {
   models.User.findOne({
     where: {
-      username
-    }
+      username,
+    },
   })
-    .then(user => {
+    .then((user) => {
       done(null, user);
     })
-    .catch(err => {
+    .catch((err) => {
       done(err);
     });
 });
@@ -92,7 +92,7 @@ const app = express();
 // Specify app settings on the app's locals object so that
 // they can be used by the pug template renderer.
 app.locals = {
-  ...settings
+  ...settings,
 };
 
 // Use browser-sync to refresh the browser if a file changes.
@@ -107,8 +107,8 @@ if (process.env.USE_BROWSER_SYNC === "true") {
     proxy: "localhost:3000",
     port: 3001,
     ui: {
-      port: 3002
-    }
+      port: 3002,
+    },
   });
   app.use(require("connect-browser-sync")(bs));
 }
@@ -134,15 +134,15 @@ app.use(
     name: "sid", // This is the name of the cookie that is used to store the session id.
     secret: process.env.SESSION_SECRET,
     store: new SequelizeStore({
-      db: models.sequelize
+      db: models.sequelize,
     }),
     saveUninitialized: false,
     resave: false,
     cookie: {
       maxAge: 8.64e7, // 1 day
       httpOnly: true,
-      secure: "auto"
-    }
+      secure: "auto",
+    },
   })
 );
 app.use(passport.initialize());
@@ -151,12 +151,10 @@ app.use(flash());
 app.use(express.static(path.join(__dirname, "public")));
 
 // Add local variables so they are available to all PUG templates.
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   // Has the user agreed to the code of conduct?
-  res.locals.codeOfConduct =
-    req.query.codeOfConduct === "true" || req.cookies.codeOfConduct === "true";
-  res.locals.privacyPolicy =
-    req.query.privacyPolicy === "true" || req.cookies.privacyPolicy === "true";
+  res.locals.codeOfConduct = req.query.codeOfConduct === "true" || req.cookies.codeOfConduct === "true";
+  res.locals.privacyPolicy = req.query.privacyPolicy === "true" || req.cookies.privacyPolicy === "true";
   res.locals.path = req.path;
   res.locals.user = req.user;
   next();
@@ -166,24 +164,18 @@ app.use("/", indexRouter);
 app.use("/login", isPrivacyPolicy, isCodeOfConduct, loginRouter);
 app.use("/logout", isAuthenticated, logoutRouter);
 app.use("/google", isPrivacyPolicy, isCodeOfConduct, googleRouter);
-app.use(
-  "/discord",
-  isPrivacyPolicy,
-  isCodeOfConduct,
-  isAuthenticated,
-  discordRouter
-);
+app.use("/discord", isPrivacyPolicy, isCodeOfConduct, isAuthenticated, discordRouter);
 
 // Make sure only logged in users can access the /users page.
 app.use("/users", isAdmin, usersRouter);
 
 // catch 404 and forward to error handler
-app.use(function(req, res, next) {
+app.use(function (req, res, next) {
   next(createError(404));
 });
 
 // error handler
-app.use(function(err, req, res) {
+app.use(function (err, req, res) {
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get("env") === "development" ? err : {};

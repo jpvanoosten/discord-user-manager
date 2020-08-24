@@ -9,13 +9,13 @@ const router = express.Router();
 router.get("/", async (req, res) => {
   if (req.query.codeOfConduct === "true") {
     res.cookie("codeOfConduct", req.query.codeOfConduct, {
-      maxAge: 3.154e10 // 1 year.
+      maxAge: 3.154e10, // 1 year.
     });
   }
 
   if (req.query.privacyPolicy === "true") {
     res.cookie("privacyPolicy", req.query.privacyPolicy, {
-      maxAge: 3.154e10 // 1 year.
+      maxAge: 3.154e10, // 1 year.
     });
   }
 
@@ -33,21 +33,21 @@ router.get("/", async (req, res) => {
   res.render("index", {
     pageTitle: "Home",
     ...flashMessages,
-    welcomeChannelURL
+    welcomeChannelURL,
   });
 });
 
 /* GET privacy-policy page. */
 router.get("/privacy-policy", (req, res) => {
   res.render("privacy-policy", {
-    pageTitle: "Privacy Policy"
+    pageTitle: "Privacy Policy",
   });
 });
 
 /* GET code-of-conduct page. */
 router.get("/code-of-conduct", (req, res) => {
   res.render("code-of-conduct", {
-    pageTitle: "Code of Conduct"
+    pageTitle: "Code of Conduct",
   });
 });
 

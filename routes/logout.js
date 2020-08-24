@@ -7,7 +7,7 @@ router.get("/", (req, res, next) => {
   const username = req.user && req.user.username;
   if (req.session) {
     req.logout();
-    req.session.destroy(err => {
+    req.session.destroy((err) => {
       if (err) {
         debug(`An error occured while destroying the session: ${err}`);
 

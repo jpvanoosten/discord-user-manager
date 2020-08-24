@@ -9,6 +9,6 @@ module.exports = {
   // Database path and file name.
   db: {
     path: path.resolve("data"),
-    file: "sqlite.db"
-  }
+    file: "sqlite.db",
+  },
 };

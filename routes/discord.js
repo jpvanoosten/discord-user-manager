@@ -14,7 +14,7 @@ passport.use(
       clientSecret: process.env.DISCORD_CLIENT_SECRET,
       callbackURL: process.env.DISCORD_REDIRECT_URI,
       scope: ["identify", "email", "guilds", "guilds.join"],
-      prompt: "none"
+      prompt: "none",
     },
     (accessToken, refreshToken, profile, done) => {
       done(null, profile);
@@ -37,12 +37,10 @@ router.get("/callback", (req, res, next) => {
     }
 
     if (err || !profile) {
-      debug(
-        `An error occured logging ${req.user.username} into Discord: ${err}`
-      );
+      debug(`An error occured logging ${req.user.username} into Discord: ${err}`);
       req.flash("info", {
         discordLoginError:
-          "An error occured when adding you to the Discord server.\nWere you able to login to Discord?"
+          "An error occured when adding you to the Discord server.\nWere you able to login to Discord?",
       });
       return res.redirect("/");
     }
@@ -61,30 +59,24 @@ router.get("/callback", (req, res, next) => {
           discordId: profile.id,
           discordUsername: profile.username,
           discordDiscriminator: profile.discriminator,
-          discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`
+          discordAvatar: `https://cdn.discordapp.com/avatars/${profile.id}/${profile.avatar}.png?size=512`,
         });
 
         // Now add the user to the discord server:
-        await DiscordAdapter.addUser(
-          profile.id,
-          user.name,
-          profile.accessToken
-        );
+        await DiscordAdapter.addUser(profile.id, user.name, profile.accessToken);
       } else {
         debug(`User ${profile.username} is banned: ${banReason}`);
 
         req.flash("info", {
-          discordLoginError: `Could not connect to the Discord server because your account is banned: ${banReason}. Please contact the Discord owner for more information.`
+          discordLoginError: `Could not connect to the Discord server because your account is banned: ${banReason}. Please contact the Discord owner for more information.`,
         });
       }
     } catch (err) {
-      debug(
-        `An error occured while adding ${user.name} to the Discord server: ${err}`
-      );
+      debug(`An error occured while adding ${user.name} to the Discord server: ${err}`);
 
       req.flash("info", {
         discordLoginError:
-          "An error occured when adding you to the Discord server.\nPlease contact the owner of the Discord server for more information."
+          "An error occured when adding you to the Discord server.\nPlease contact the owner of the Discord server for more information.",
       });
     }
 
@@ -111,7 +103,7 @@ router.get("/logout", async (req, res) => {
     discordId: null,
     discordUsername: null,
     discordDiscriminator: null,
-    discordAvatar: null
+    discordAvatar: null,
   });
 
   // Redirect to the main page.

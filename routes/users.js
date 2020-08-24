@@ -12,27 +12,17 @@ const SUBSTRING = Sequelize.Op.substring;
 router.get("/", async (req, res) => {
   // Get the query parameters
   const search =
-    typeof req.query.q === "undefined"
-      ? (req.session.users && req.session.users.search) || ""
-      : req.query.q;
-  const limit = Math.max(
-    parseInt(
-      req.query.limit || (req.session.users && req.session.users.limit) || 50
-    ),
-    1
-  );
-  let offset = parseInt(
-    req.query.offset || (req.session.users && req.session.users.offset) || 0
-  );
-  const order =
-    req.query.order || (req.session.users && req.session.users.order) || "";
+    typeof req.query.q === "undefined" ? (req.session.users && req.session.users.search) || "" : req.query.q;
+  const limit = Math.max(parseInt(req.query.limit || (req.session.users && req.session.users.limit) || 50), 1);
+  let offset = parseInt(req.query.offset || (req.session.users && req.session.users.offset) || 0);
+  const order = req.query.order || (req.session.users && req.session.users.order) || "";
 
   // Save query parameters to the session if they changed.
   req.session.users = {
     search,
     limit,
     offset,
-    order
+    order,
   };
 
   let where;
@@ -41,22 +31,22 @@ router.get("/", async (req, res) => {
       [OR]: [
         {
           username: {
-            [SUBSTRING]: search
-          }
+            [SUBSTRING]: search,
+          },
         },
         {
           name: {
-            [SUBSTRING]: search
-          }
-        }
-      ]
+            [SUBSTRING]: search,
+          },
+        },
+      ],
     };
   }
 
   debug("Querying users");
   // Get a list of users
   const numUsers = await models.User.count({
-    where
+    where,
   });
 
   // Limit offset so that it doesn't exceed the maximum number of users.
@@ -67,7 +57,7 @@ router.get("/", async (req, res) => {
     limit,
     offset,
     order,
-    raw: true // Just get the fields, but don't attach functions (see: https://sequelize.org/master/manual/models-usage.html#raw-queries)
+    raw: true, // Just get the fields, but don't attach functions (see: https://sequelize.org/master/manual/models-usage.html#raw-queries)
   });
 
   const flashMessages = req.flash("info")[0];
@@ -79,7 +69,7 @@ router.get("/", async (req, res) => {
     limit,
     offset,
     search,
-    ...flashMessages
+    ...flashMessages,
   });
 });
 
@@ -91,8 +81,8 @@ router.post("/edit/:id", async (req, res) => {
 
   const user = await models.User.findOne({
     where: {
-      id
-    }
+      id,
+    },
   });
 
   if (!user) {
@@ -103,12 +93,12 @@ router.post("/edit/:id", async (req, res) => {
 
   // Perform the update
   await user.update({
-    username
+    username,
   });
 
   // Send a flash message that the user was edited.
   req.flash("info", {
-    userUpdatedMessage: `User with id ${id} has been succesfully edited.`
+    userUpdatedMessage: `User with id ${id} has been succesfully edited.`,
   });
 
   res.redirect("/users");
@@ -119,8 +109,8 @@ router.post("/delete/:id", async (req, res) => {
 
   const user = await models.User.findOne({
     where: {
-      id
-    }
+      id,
+    },
   });
 
   if (!user) {
@@ -134,7 +124,7 @@ router.post("/delete/:id", async (req, res) => {
 
   // Send a flash message that the user was deleted.
   req.flash("info", {
-    userDeletedMessage: `User with id ${id} has been succesfully deleted.`
+    userDeletedMessage: `User with id ${id} has been succesfully deleted.`,
   });
 
   res.redirect("/users");

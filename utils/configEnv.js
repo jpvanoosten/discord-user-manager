@@ -3,13 +3,12 @@ const path = require("path");
 const argv = require("yargs").command(
   "* [force]",
   "Create the .env file in the project's root folder based on the .env.example file.",
-  yargs => {
+  (yargs) => {
     yargs.positional("force", {
-      describe:
-        "Force overwritting of the .env file even if it already exists.",
+      describe: "Force overwritting of the .env file even if it already exists.",
       alias: "f",
       type: "boolean",
-      default: false
+      default: false,
     });
   }
 ).argv;
@@ -52,13 +51,9 @@ async function main() {
   // unless the --force option is specified.
   if (fs.existsSync(envOutput)) {
     if (argv.force) {
-      console.log(
-        `${envOutput} already exists. The force option was specified so the file will be overwritten.`
-      );
+      console.log(`${envOutput} already exists. The force option was specified so the file will be overwritten.`);
     } else {
-      throw new Error(
-        `${envOutput} already exists. Use the --force option to force overwritting the file.`
-      );
+      throw new Error(`${envOutput} already exists. Use the --force option to force overwritting the file.`);
     }
   }
 
@@ -73,6 +68,6 @@ async function main() {
   console.log(`Finished configuring ${envOutput}`);
 }
 
-main().catch(err => {
+main().catch((err) => {
   console.log(err);
 });

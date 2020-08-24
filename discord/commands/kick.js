@@ -32,5 +32,5 @@ module.exports = {
     } else {
       message.reply(`User ${user.tag} is not a guild member.`);
     }
-  }
+  },
 };

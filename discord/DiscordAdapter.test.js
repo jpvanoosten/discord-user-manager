@@ -7,7 +7,7 @@ const config = require("./config");
 
 const DiscordAdapter = require("./DiscordAdapter");
 
-beforeAll(done => {
+beforeAll((done) => {
   DiscordAdapter.once("ready", async () => {
     const user = await DiscordAdapter.resolveUser(
       process.env.TEST_USER_DISCORD_ID
@@ -26,7 +26,7 @@ beforeAll(done => {
   });
 });
 
-test("resolve channel", async () => {
+test("resolve welcome channel", async () => {
   let channel = await DiscordAdapter.resolveChannel(config.welcomeChannel);
   expect(channel).toHaveProperty("id");
   channel = await DiscordAdapter.resolveChannel(channel.id);
@@ -35,7 +35,7 @@ test("resolve channel", async () => {
   expect(channel).toHaveProperty("id");
 });
 
-test("resolve role", async () => {
+test("resolve default role", async () => {
   let role = DiscordAdapter.resolveRole(config.defaultRole);
   expect(role).toHaveProperty("id");
   role = DiscordAdapter.resolveRole(role.id);

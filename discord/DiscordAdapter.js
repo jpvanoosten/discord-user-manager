@@ -38,7 +38,7 @@ class DiscordAdapter extends EventEmitter {
     this.resolveUser = this.resolveUser.bind(this);
 
     this.client = new Discord.Client({
-      partials: ["MESSAGE", "CHANNEL"] // Allow partials (required for handling reactions on uncached messages)
+      partials: ["MESSAGE", "CHANNEL"], // Allow partials (required for handling reactions on uncached messages)
     });
     this.client.commands = new Discord.Collection();
     this.client.reactions = new Discord.Collection();
@@ -66,7 +66,7 @@ class DiscordAdapter extends EventEmitter {
     // an incomplete object.
     const commandFiles = fs
       .readdirSync(path.join(__dirname, "commands"))
-      .filter(file => file.endsWith(".js"));
+      .filter((file) => file.endsWith(".js"));
 
     for (const file of commandFiles) {
       const command = require(path.join(__dirname, "commands", file));
@@ -76,7 +76,7 @@ class DiscordAdapter extends EventEmitter {
 
     const reactionFiles = fs
       .readdirSync(path.join(__dirname, "reactions"))
-      .filter(file => file.endsWith(".js"));
+      .filter((file) => file.endsWith(".js"));
 
     for (const file of reactionFiles) {
       const reaction = require(path.join(__dirname, "reactions", file));
@@ -108,19 +108,19 @@ class DiscordAdapter extends EventEmitter {
       info: "GREEN",
       warning: "ORANGE",
       error: "RED",
-      debug: "BLUE"
+      debug: "BLUE",
     };
 
     try {
       const logChannel = await this.resolveChannel(config.logChannel);
       if (logChannel && logChannel.send) {
         const args = [...arguments].slice(1);
-        const message = args.map(arg => {
+        const message = args.map((arg) => {
           switch (typeof arg) {
-          case "string":
-            return arg;
-          case "object":
-            return [...arg];
+            case "string":
+              return arg;
+            case "object":
+              return [...arg];
           }
         });
 
@@ -207,7 +207,7 @@ class DiscordAdapter extends EventEmitter {
     const command =
       this.client.commands.get(commandName) ||
       this.client.commands.find(
-        cmd => cmd.aliases && cmd.aliases.includes(commandName)
+        (cmd) => cmd.aliases && cmd.aliases.includes(commandName)
       );
 
     if (!command) {
@@ -296,7 +296,7 @@ class DiscordAdapter extends EventEmitter {
     }
 
     try {
-      this.client.reactions.map(r => {
+      this.client.reactions.map((r) => {
         if (r.reactionAdd) {
           r.reactionAdd(reaction, user);
         }
@@ -319,7 +319,7 @@ class DiscordAdapter extends EventEmitter {
     }
 
     try {
-      this.client.reactions.map(r => {
+      this.client.reactions.map((r) => {
         if (r.reactionRemove) {
           r.reactionRemove(reaction, user);
         }
@@ -340,8 +340,8 @@ class DiscordAdapter extends EventEmitter {
 
     const user = await User.findOne({
       where: {
-        discordId: guildMember.id
-      }
+        discordId: guildMember.id,
+      },
     });
 
     if (user) {
@@ -367,8 +367,8 @@ class DiscordAdapter extends EventEmitter {
 
     const user = await User.findOne({
       where: {
-        discordId: guildMember.id
-      }
+        discordId: guildMember.id,
+      },
     });
 
     if (user) {
@@ -377,7 +377,7 @@ class DiscordAdapter extends EventEmitter {
         discordId: null,
         discordUsername: null,
         discordDiscriminator: null,
-        discordAvatar: null
+        discordAvatar: null,
       });
     }
   }
@@ -396,7 +396,7 @@ class DiscordAdapter extends EventEmitter {
    * @throws If the guild specified by the guildId in the config file was not found.
    */
   getGuild() {
-    const guild = this.client.guilds.get(config.guildId);
+    const guild = this.client.guilds.resolve(config.guildId);
     if (!guild) {
       throw new Error(`Guild with id ${config.guildId} was not found.`);
     }
@@ -413,14 +413,14 @@ class DiscordAdapter extends EventEmitter {
     let guild = this.getGuild();
 
     channel =
-      guild.channels.get(channelResolvable) ||
-      guild.channels.find(
-        guildChannel => guildChannel.name === channelResolvable
+      guild.channels.resolve(channelResolvable) ||
+      guild.channels.cache.find(
+        (guildChannel) => guildChannel.name === channelResolvable
       );
 
     if (!channel) {
       channel =
-        this.client.channels.get(channelResolvable.id) ||
+        this.client.channels.resolve(channelResolvable.id) ||
         channelResolvable.channel;
     }
 
@@ -436,16 +436,16 @@ class DiscordAdapter extends EventEmitter {
   async resolveUser(userResolvable) {
     let user = null;
     switch (typeof userResolvable) {
-    case "string":
-      user = await this.client.users.fetch(userResolvable);
-      break;
-    case "object":
-      user =
+      case "string":
+        user = await this.client.users.fetch(userResolvable);
+        break;
+      case "object":
+        user =
           userResolvable.user ||
           userResolvable.owner ||
           userResolvable.author ||
           userResolvable;
-      break;
+        break;
     }
 
     return user;
@@ -461,12 +461,12 @@ class DiscordAdapter extends EventEmitter {
     const guild = this.getGuild();
     let guildMember = null;
     switch (typeof guildMemberResolvable) {
-    case "string":
-      guildMember = guild.members.get(guildMemberResolvable);
-      break;
-    case "object":
-      guildMember = guild.members.get(guildMemberResolvable.id);
-      break;
+      case "string":
+        guildMember = guild.members.resolve(guildMemberResolvable);
+        break;
+      case "object":
+        guildMember = guild.members.resolve(guildMemberResolvable.id);
+        break;
     }
 
     return guildMember;
@@ -485,14 +485,14 @@ class DiscordAdapter extends EventEmitter {
 
     let role = null;
     switch (typeof roleResolvable) {
-    case "string":
-      role =
-          guild.roles.get(roleResolvable) ||
-          guild.roles.find(role => role.name === roleResolvable);
-      break;
-    case "object":
-      role = guild.roles.get(roleResolvable.id);
-      break;
+      case "string":
+        role =
+          guild.roles.resolve(roleResolvable) ||
+          guild.roles.cache.find((role) => role.name === roleResolvable);
+        break;
+      case "object":
+        role = guild.roles.resolve(roleResolvable.id);
+        break;
     }
 
     return role;
@@ -556,7 +556,7 @@ class DiscordAdapter extends EventEmitter {
         guildMember = await guild.addMember(discordUser, {
           accessToken,
           nick,
-          roles: [defaultRole.id]
+          roles: [defaultRole.id],
         });
       } catch (err) {
         debug(`An error occured while adding user to the guild: ${err}`);
@@ -598,8 +598,9 @@ class DiscordAdapter extends EventEmitter {
     const guildMember = await this.resolveGuildMember(guildMemberResolvable);
     if (!guildMember) {
       throw new Error(
-        `User ${guildMemberResolvable.id ||
-          guildMemberResolvable} is not a member of the guild.`
+        `User ${
+          guildMemberResolvable.id || guildMemberResolvable
+        } is not a member of the guild.`
       );
     }
 
@@ -631,8 +632,9 @@ class DiscordAdapter extends EventEmitter {
     const guildMember = await this.resolveGuildMember(guildMemberResolvable);
     if (!guildMember) {
       throw new Error(
-        `User ${guildMemberResolvable.id ||
-          guildMemberResolvable} is not a member of the guild.`
+        `User ${
+          guildMemberResolvable.id || guildMemberResolvable
+        } is not a member of the guild.`
       );
     }
 
@@ -660,7 +662,7 @@ class DiscordAdapter extends EventEmitter {
     const guild = this.getGuild();
     if (guild && guild.available) {
       await guild.ban(userResolvable, {
-        reason
+        reason,
       });
     }
   }

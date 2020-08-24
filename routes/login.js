@@ -14,10 +14,10 @@ passport.use(
     // Find user by username in the User table.
     models.User.findOne({
       where: {
-        username
-      }
+        username,
+      },
     })
-      .then(user => {
+      .then((user) => {
         if (user) {
           // Check for the correct password
           const passwordsMatch = bcrypt.compareSync(password, user.password);
@@ -29,7 +29,7 @@ passport.use(
             return done(null, null, {
               message: `Invalid password for user ${username}`,
               passwordError: "Invalid password.",
-              username
+              username,
             });
           }
         } else {
@@ -37,11 +37,11 @@ passport.use(
           return done(null, null, {
             message: `User ${username} not found.`,
             usernameError: "Invalid username.",
-            username
+            username,
           });
         }
       })
-      .catch(err => {
+      .catch((err) => {
         debug(`An error occured while querying the user: ${err}`);
         return done(err);
       });
@@ -64,7 +64,7 @@ router.get("/", (req, res) => {
     res.render("login", {
       pageTitle: "Login",
       ...flashInfo,
-      ...settings
+      ...settings,
     });
   }
 });
@@ -79,7 +79,7 @@ router.post("/", (req, res, next) => {
       return next(err);
     } else {
       if (user) {
-        req.login(user, err => {
+        req.login(user, (err) => {
           if (err) {
             debug(`Error logging in: ${err}`);
             return next(err);

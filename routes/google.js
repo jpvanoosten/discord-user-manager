@@ -14,7 +14,7 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: process.env.GOOGLE_REDIRECT_URI
+      callbackURL: process.env.GOOGLE_REDIRECT_URI,
     },
     (accessToken, refreshToken, profile, done) => {
       // Get the email address of the user:
@@ -26,33 +26,29 @@ passport.use(
 
       models.User.findOrCreate({
         where: {
-          username: email
-        }
+          username: email,
+        },
       })
         .then(([user, created]) => {
           if (created) {
             debug(`New user added to database: ${profile.displayName}`);
           } else {
-            debug(
-              `User already registered to database: ${profile.displayName}`
-            );
+            debug(`User already registered to database: ${profile.displayName}`);
           }
 
           user
             .update({
               // Google users get a random password.
-              password:
-                user.password ||
-                bcrypt.hashSync(crypto.randomBytes(50).toString("base64"), 10),
+              password: user.password || bcrypt.hashSync(crypto.randomBytes(50).toString("base64"), 10),
               googleId: profile.id,
               img: profile.photos[0].value,
-              name: profile.displayName
+              name: profile.displayName,
             })
             .then(() => {
               done(null, user);
             });
         })
-        .catch(err => {
+        .catch((err) => {
           debug(`An error occured when adding user: ${err}`);
           done(err);
         });
@@ -63,7 +59,7 @@ passport.use(
 router.get(
   "/",
   passport.authenticate("google", {
-    scope: ["email", "profile"]
+    scope: ["email", "profile"],
   })
 );
 
@@ -71,7 +67,7 @@ router.get(
 router.get(
   "/callback",
   passport.authenticate("google", {
-    failureRedirect: "/google"
+    failureRedirect: "/google",
   }),
   (req, res) => {
     debug("Google user successfully logged in.");

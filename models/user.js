@@ -13,12 +13,12 @@ module.exports = (sequelize, DataTypes) => {
       discordDiscriminator: { type: DataTypes.STRING },
       discordAvatar: { type: DataTypes.STRING },
       isAdmin: { type: DataTypes.BOOLEAN, defaultValue: false },
-      isBanned: { type: DataTypes.BOOLEAN, defaultValue: false }
+      isBanned: { type: DataTypes.BOOLEAN, defaultValue: false },
     },
     {}
   );
   // eslint-disable-next-line no-unused-vars
-  User.associate = function(models) {
+  User.associate = function (models) {
     // associations can be defined here
   };
   return User;

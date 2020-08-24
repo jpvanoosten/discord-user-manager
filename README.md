@@ -346,13 +346,285 @@ If the bot is running correctly, it should reply with `Pong.` printed to the sam
 
 If you want to see a list of possible commands the bot can respond to, use the `!help` bot command. The bot should respond with a direct message that contains list of bot commands that it knows about.
 
-### Add Custom Bot Commands
+## Add Custom Bot Commands
 
-// TODO: Add custom bot commands.
+You can create custom bot commands by adding a JavaScript file to the discord/commands folder. The file should export an object with the following properties:
+
+| Property    | Type                                                  | Required | Description                                                                                                                                                                                                                                                                                                              |
+| ----------- | ----------------------------------------------------- | :------: | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| name        | string                                                |    ✔     | The name that is used to identify the command.                                                                                                                                                                                                                                                                           |
+| description | string                                                |          | A brief description of the command. Used to diplay documentation using the `!help` bot command.                                                                                                                                                                                                                          |
+| aliases     | string[]                                              |          | An array of aliases for the command.                                                                                                                                                                                                                                                                                     |
+| usage       | string                                                |          | A list of expected arguments for the command.                                                                                                                                                                                                                                                                            |
+| args        | boolean                                               |          | Set to `true` if this command expects arguments. If `true` and no arguments are provided, an error is generated displaying the `usage` string.                                                                                                                                                                           |
+| cooldown    | number                                                |          | The time in seconds that the command can be exectued again.                                                                                                                                                                                                                                                              |
+| guildOnly   | boolean                                               |          | `true` if this command can only be executed in the context of a guild channel. If `true`, an error is generated if the command is executed in a direct message to the bot.                                                                                                                                               |
+| permissions | [Discord.PermissionResolvable]\[]                     |          | An array of permission flags that the user executing the command must have. See https://discord.js.org/#/docs/main/stable/class/Permissions?scrollTo=s-FLAGS                                                                                                                                                             |
+| execute     | function (message: [Discord.Message], args: string[]) |    ✔     | The function that is executed when the command is received by the bot. The `message` parameter is the Discord message that was received. The `args` parameter are any additional arguments that were provided in the message. If the command doesn't take any additional arguments, the `args` parameter can be omitted. |
+
+An example command file looks like this:
+
+```js
+// Error messages can be logged to a debug stream.
+const debug = require("debug")("discord-user-manager:discord:commands:kick");
+// The DiscordJS API
+const discord = require("discord.js");
+
+module.exports = {
+  // The command name (excluding the command prefix).
+  name: "kick",
+
+  // Command aliases.
+  aliases: ["k"],
+
+  // A description of the command.
+  description: "Kick a user from the Discord guild server.",
+
+  // Does this command expect any additional arguments?
+  args: true,
+
+  // Specify the expected arguments.
+  usage: "<guildUser>",
+
+  // The user executing the command must have the following permissions.
+  permissions: [discord.Permissions.FLAGS.KICK_MEMBERS],
+
+  // Can this command only be run in the context of a guild channel?
+  guildOnly: true,
+
+  // Elapsed time between subsequent execution of the command.
+  cooldown: 1,
+
+  // The function that executes the command.
+  execute: async (message) => {
+    if (!message.mentions.users.size) {
+      return message.reply("No user mentioned in kick command.");
+    }
+
+    const user = message.mentions.users.first();
+    if (user === message.author) {
+      return message.reply("You can't kick yourself.");
+    }
+
+    const member = message.guild.member(user);
+    if (member) {
+      try {
+        await member.kick("Kicked by bot kick command.");
+        message.reply(`Successfully kicked ${user.tag}`);
+      } catch (err) {
+        debug(err);
+        message.reply(`Unable to kick ${user.tag}`);
+      }
+    } else {
+      message.reply(`User ${user.tag} is not a guild member.`);
+    }
+  },
+};
+```
 
 ## Testing
 
-// TODO: How to test the server.
+[Jest] is used to perform unit testing on the server. Some of the test cases require a valid Discord user in order to run. A valid OAuth 2.0 access token is required for the test user. At the time of this writing, there is currently no automatic way to get an access token for a user. The easiest way to get an access token is using [Postman].
+
+Go to https://www.postman.com/downloads/ and get the latest version of the Postman client application. Follow the installation instructions and launch the Postman application.
+
+![Postman Desktop Application](docs/images/postman-1.png)
+
+Create a new collection by selecting **File > New > Collection** from the main menu or select the **Collections** pane and click **New Collection**.
+
+![Create a new collection](docs/images/postman-2.png)
+
+Set the collection name to **Discord Access Token** and optionally provide a description.
+
+Click on the **Variables** tab.
+
+![Collection variables](docs/images/postman-3.png)
+
+Create a variable with the name **discordClientID** and copy the discord client ID from the Discord application that you created earlier and paste it in the **Current Value** of the variable. This should be the same value as the `DISCORD_CLIENT_ID` in the `.env` file.
+
+Create another variable with the name **discordClientSecret** and copy the discord client secret from the Discord application that you created earlier and paste it in the **Current Value** of the variable. This should be the same value as the `DISCORD_CLIENT_SECRET` in the `.env` file.
+
+> Before continuing, you may need to create or save the collection to ensure the collection variables have been created. Click on the **Create** or **Update** button to save the collection settings. Open the collection editor again by selecting the three dots next to the collection name and select **Edit** from the popup menu that appears.
+
+Click on the **Authorization** tab.
+
+![Authorization tab](docs/images/postman-4.png)
+
+Set the Authorization **Type** to **OAuth 2.0** and the **Add auth data to** option to **Request Headers**.
+
+Set the **Header Prefix** to **Bearer** and click the **Get New Access Token** button.
+
+![Get new access token](docs/images/postman-5.png)
+
+Set the **Token Name** to **Discord Access Token** or something similar.
+
+Set the **Grant Type** to **Authorization Code**.
+
+Set the **Callback URL** to **http://localhost:3000/discord/callback**. The callback URL must match one of the redirects that you configured in the OAuth2 settings in your Discord application or the token request will fail. The Discord User Manager does not need to be running in order to retrieve the access token.
+
+Make sure the **Authorize using browser** is not checked.
+
+Set the **Auth URL** to **https://discord.com/api/oauth2/authorize**.
+
+Set the **Access Token URL** to **https://discord.com/api/oauth2/token**.
+
+Set the **Client ID** to **{{discordClientID}}**.
+
+Set the **Client Secret** to **{{discordClientSecret}}**.
+
+Set the **Scope** to **identify email guilds.join**.
+
+The **State** can be left blank. This is not required by the Discord OAuth access token request.
+
+Set the **Client Authentication** to **Send as Basic Auth header**.
+
+With all of the fields filled in, click the **Request Token** button.
+
+![Authorize access to your account](docs/images/postman-6.png)
+
+Click the **Authorize** button on the screen that appears.
+
+![Manage access tokens](docs/images/postman-7.png)
+
+If everything worked, the **Manage Access Tokens** dialog box should appear with the access token filled in. Click the **Use Token** button in the top-right corner to save the access token to the collection.
+
+![Copy access token](docs/images/postman-8.png)
+
+Copy the access token from the **Access Token** text box and paste it in the value for the `TEST_USER_ACCESS_TOKEN` variable in the `.env` file.
+
+### Get Discord User ID
+
+The easiest way to get the ID of the Discord user that requested the access token is to hit the **/users/@me** Discord API endpoint.
+
+In Postman, add a new request to the **Discord Access Token** collection by selecting **File > New > Request** from the main menu.
+
+![Add new request](docs/images/postman-9.png)
+
+Give the new request a name such as **Get Current User**. Optionally, you can also provide a description.
+
+Click the **Save to Discord Access Token** to save the new request to the **Discord Access Token** collection.
+
+![Get Current User request](docs/images/postman-10.png)
+
+The new request should open.
+
+Set the request verb to **GET**.
+
+Set the request URL to **https://discord.com/api/users/@me**.
+
+Select the **Authorization** tab and make sure that the Authorization **Type** is set to **Inherit auth from parent**.
+
+Press the **Send** button.
+
+The response body should be filled in with the identity of the currently logged in user. If you received an error, double check that the access token is valid and configured correctly in the collection settings.
+
+Copy the value of the **id** property in the response body and paste it into the value for the `TEST_USER_DISCORD_ID` variable in the `.env` file.
+
+### Revoke Access Token
+
+> Do not revoke the access token until you are finished testing. If the access token expired, you'll need to request a new token using the previous steps.
+
+When you are finished testing the Discord User Manager, you may want to revoke the access token that you received.
+
+Create another request in the **Discord Access Token** collection.
+
+![Revoke access token request](docs/images/postman-11.png)
+
+Set the request name to **Revoke Access Token** or something similar. Optionally, you can also specify a description.
+
+Click the **Save to Discord Access Token** button to add the request to the **Discord Access Token** collection.
+
+![Revoke Access Token request](docs/images/postman-12.png)
+
+Set the request verb to **POST**.
+
+Set the request URL to **https://discord.com/api/oauth2/token/revoke**.
+
+Select the **Body** tab and set the content type to **x-www-form-urlencoded**.
+
+Add a key named **client_id** and value **{{discordClientID}}**.
+
+Add another key named **client_secret** and value **{{discordClientSecret}}**.
+
+Add a key named **token** and copy-paste the access token you want to revoke.
+
+Press the **Send** button to send the request.
+
+If the request succeeded, the response body should contain an empty object. To ensure the token was revoked, send the **Get Current User** request again. If the response body contains the following data, then you know the access token has been successfully revoked.
+
+```json
+{
+  "message": "401: Unauthorized",
+  "code": 0
+}
+```
+
+> If you need a new access token, open the collection settings and click the **Get New Access Token** button again.
+
+## Run Jest
+
+To run the unit tests for the Discord bot, open a terminal in the root folder of the project and use the following command:
+
+```bash
+npm run test
+```
+
+or if you are using [yarn]:
+
+```bash
+yarn test
+```
+
+If all tests pass, you should see the following output in the terminal:
+
+```bash
+ PASS  discord/DiscordAdapter.test.js
+  √ resolve welcome channel (2ms)
+  √ resolve default role (1ms)
+  √ can add user to role (599ms)
+  √ add user to invalid role (30ms)
+  √ add invalid user to role (1ms)
+  √ welcome URL
+  √ add existing user (168ms)
+  √ add invalid user
+  √ remove invalid user (1ms)
+  √ send log to channel (1ms)
+
+----------------------------------------|----------|----------|----------|----------|-------------------|
+File                                    |  % Stmts | % Branch |  % Funcs |  % Lines | Uncovered Line #s |
+----------------------------------------|----------|----------|----------|----------|-------------------|
+All files                               |    50.88 |    23.04 |    54.55 |    51.02 |                   |
+ discord-user-manager                   |      100 |      100 |      100 |      100 |                   |
+  settings.js                           |      100 |      100 |      100 |      100 |                   |
+ discord-user-manager/config            |      100 |      100 |      100 |      100 |                   |
+  config.js                             |      100 |      100 |      100 |      100 |                   |
+ discord-user-manager/discord           |    59.92 |     31.4 |    67.57 |    59.69 |                   |
+  DiscordAdapter.js                     |    59.77 |     31.4 |    67.57 |    59.53 |... 45,646,648,651 |
+  config.js                             |      100 |      100 |      100 |      100 |                   |
+ discord-user-manager/discord/commands  |    13.95 |        0 |        0 |    14.46 |                   |
+  args-info.js                          |    16.67 |        0 |        0 |    16.67 |        6,7,8,9,12 |
+  help.js                               |     9.76 |        0 |        0 |    10.53 |... 69,70,72,73,76 |
+  kick.js                               |    18.75 |        0 |        0 |    18.75 |... 26,27,29,30,33 |
+  ping.js                               |       50 |      100 |        0 |       50 |                 7 |
+  prune.js                              |    14.29 |        0 |        0 |    14.29 |... 33,35,37,39,40 |
+ discord-user-manager/discord/reactions |       20 |        0 |        0 |       20 |                   |
+  add_role.js                           |       20 |        0 |        0 |       20 |... 36,37,38,40,43 |
+ discord-user-manager/models            |    95.83 |    66.67 |      100 |    95.83 |                   |
+  index.js                              |       95 |    66.67 |      100 |       95 |                13 |
+  user.js                               |      100 |      100 |      100 |      100 |                   |
+----------------------------------------|----------|----------|----------|----------|-------------------|
+Test Suites: 1 passed, 1 total
+Tests:       10 passed, 10 total
+Snapshots:   0 total
+Time:        4.33s
+Ran all test suites.
+```
+
+Some common reasons why some of the tests fail:
+
+1.  The Discord guild server does not have a welcome channel. See [discord/config.js].
+2.  The Discord guild server does not have a default role. See [discord/config.js].
+3.  The test user's OAuth access token is not valid. See [Testing](#Testing)
 
 [.env.example]: .env.example
 [bootstrap]: https://getbootstrap.com/
@@ -402,3 +674,7 @@ If you want to see a list of possible commands the bot can respond to, use the `
 [google developer console]: https://console.developers.google.com/
 [google developer console credentials]: https://console.developers.google.com/apis/credentials
 [discord developer portal]: https://discord.com/developers
+[discord.message]: https://discord.js.org/#/docs/main/stable/class/Message
+[discord.permissionresolvable]: https://discord.js.org/#/docs/main/stable/typedef/PermissionResolvable
+[postman]: https://www.postman.com/
+[discord/config.js]: discord/config.js

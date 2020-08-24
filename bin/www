@@ -40,7 +40,7 @@ models.sequelize
       username: process.env.ADMIN_USERNAME,
       password: bcrypt.hashSync(process.env.ADMIN_PASSWORD, 10),
       name: "Admin User",
-      isAdmin: true
+      isAdmin: true,
     });
   })
   .then(() => {
@@ -53,7 +53,7 @@ models.sequelize
     server.on("error", onError);
     server.on("listening", onListening);
   })
-  .catch(err => {
+  .catch((err) => {
     debug(`Database synchronization failed: ${err}`);
   });
 
@@ -90,16 +90,16 @@ function onError(error) {
 
   // handle specific listen errors with friendly messages
   switch (error.code) {
-  case "EACCES":
-    console.error(bind + " requires elevated privileges");
-    process.exit(1);
-    break;
-  case "EADDRINUSE":
-    console.error(bind + " is already in use");
-    process.exit(1);
-    break;
-  default:
-    throw error;
+    case "EACCES":
+      console.error(bind + " requires elevated privileges");
+      process.exit(1);
+      break;
+    case "EADDRINUSE":
+      console.error(bind + " is already in use");
+      process.exit(1);
+      break;
+    default:
+      throw error;
   }
 }
 

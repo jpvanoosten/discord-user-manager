@@ -10,7 +10,7 @@ module.exports = {
   permissions: [discord.Permissions.FLAGS.KICK_MEMBERS],
   guildOnly: true,
   cooldown: 1,
-  execute: async (message, args) => {
+  execute: async (message) => {
     if (!message.mentions.users.size) {
       return message.reply("No user mentioned in kick command.");
     }

@@ -422,7 +422,11 @@ module.exports = {
 };
 ```
 
-## Testing
+## Reaction Based Roles
+
+// TODO: This section still needs to be filled in.
+
+# Testing
 
 [Jest] is used to perform unit testing on the server. Some of the test cases require a valid Discord user in order to run. A valid OAuth 2.0 access token is required for the test user. At the time of this writing, there is currently no automatic way to get an access token for a user. The easiest way to get an access token is using [Postman].
 
@@ -622,9 +626,11 @@ Ran all test suites.
 
 Some common reasons why some of the tests fail:
 
-1.  The Discord guild server does not have a welcome channel. See [discord/config.js].
-2.  The Discord guild server does not have a default role. See [discord/config.js].
-3.  The test user's OAuth access token is not valid. See [Testing](#Testing)
+1. The Discord guild server does not have a welcome channel. See [discord/config.js].
+2. The Discord guild server does not have a default role. See [discord/config.js].
+3. The Discord guild server does not have a logs channel. See [discord/config.js].
+4. The test user's OAuth access token is not valid. See [Testing](#Testing).
+5. The test user's ID does not match that of the access token. See [Get Discord User ID](#get-discord-user-id).
 
 [.env.example]: .env.example
 [bootstrap]: https://getbootstrap.com/

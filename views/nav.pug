@@ -21,6 +21,10 @@ header.fixed-top
           +navItem("/users", "Users")
       if codeOfConduct
         if user
+          if user.isAdmin
+            a.btn.btn-success.mr-2(role="button" href="#")
+              i.fa.fa-plus
+              |  Add user
           a.btn.btn-primary(role="button" href="/logout") Log out
         else
           a.btn.btn-primary(role="button" href="/login") Log in

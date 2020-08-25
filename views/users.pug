@@ -21,7 +21,9 @@ mixin userRow(user)
           data-tooltip="true"
           data-userid= user.id
           data-username= user.username
+          data-name= user.name
           data-discordid= user.discordId
+          data-isadmin= user.isAdmin
           title="Edit user" 
           id=`edit-user-${user.id}`
         )
@@ -34,7 +36,9 @@ mixin userRow(user)
           data-tooltip="true"
           data-userid= user.id
           data-username= user.username
+          data-name= user.name
           data-discordid= user.discordId
+          data-isadmin= user.isAdmin
           title="Delete user" 
           id=`delete-user-${user.id}`
           href=`/users/delete/${user.id}`
@@ -118,7 +122,9 @@ block append scripts
         var button = $(event.relatedTarget); // Button that triggered the event.
         var userId = button.data("userid");
         var username = button.data("username");
+        var name = button.data("name");
         var discordId = button.data("discordid");
+        var isAdmin = button.data("isadmin");
         var modal = $(this);
         var form = modal.find("form");
         form.attr("action", `/users/edit/${userId}`);
@@ -131,7 +137,10 @@ block append scripts
         modal.find(".modal-title").text(`Edit ${username}`);
         modal.find("#userId").val(userId);
         modal.find("#username").val(username);
+        modal.find("#name").val(name);
         modal.find("#discordId").val(discordId);
+        modal.find("#isAdmin").prop("checked", isAdmin ? true : false);
+        console.log("Is Admin: ", isAdmin);
       });
 
       // Populate the delete user modal with data on show.
@@ -139,7 +148,9 @@ block append scripts
         var button = $(event.relatedTarget); // Button that triggered the event.
         var userId = button.data("userid");
         var username = button.data("username");
+        var name = button.data("name");
         var discordId = button.data("discordid");
+        var isAdmin = button.data("isadmin");
         var modal = $(this);
         var form = modal.find("form");
         form.attr("action", `/users/delete/${userId}`);
@@ -152,7 +163,9 @@ block append scripts
         modal.find(".modal-title").text(`Delete ${username}`);
         modal.find("#userId").val(userId);
         modal.find("#username").val(username);
+        modal.find("#name").val(name);
         modal.find("#discordId").val(discordId);
+        modal.find("#isAdmin").prop("checked", isAdmin ? true : false);
       });
 
       // Alerts "slide up" when closed.
@@ -246,11 +259,20 @@ block content
               label.col-sm-3.col-form-label(for="username" ) Username
               .col-sm-9
                 input.form-control#username(type="text" value="username" name="username")
+            .form-group.row
+              label.col-sm-3.col-form-label(for="name" ) Name
+              .col-sm-9
+                input.form-control#name(type="text" value="name" name="name")
             fieldset(disabled)
               .form-group.row
                 label.col-sm-3.col-form-label(for="discordId") Discord ID
                 .col-sm-9
                   input.form-control#discordId(type="text" value="discordId" name="discordId" readonly)
+            .form-group.row
+              .col-sm-3 Admin
+              .col-sm-9
+                .form-check
+                  input.form-check-input#isAdmin(type="checkbox" name="isAdmin")
           .modal-footer
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
             button.btn.btn-primary(type="submit" data-dismiss="modal") Save
@@ -276,9 +298,18 @@ block content
                 .col-sm-9
                   input.form-control-plaintext#username(value="username" name="username")
               .form-group.row
+                label.col-sm-3.col-form-label(for="name" ) Name
+                .col-sm-9
+                  input.form-control-plaintext#name(value="name" name="name")
+              .form-group.row
                 label.col-sm-3.col-form-label(for="discordId") Discord ID
                 .col-sm-9
                   input.form-control-plaintext#discordId(type="text" value="discordId" name="discordId" readonly)
+              .form-group.row
+                .col-sm-3 Admin
+                .col-sm-9
+                  .form-check
+                    input.form-check-input#isAdmin(type="checkbox" name="isAdmin")
           .modal-footer
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
             button.btn.btn-danger(type="submit" data-dismiss="modal") Delete

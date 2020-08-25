@@ -77,6 +77,8 @@ router.get("/", async (req, res) => {
 router.post("/edit/:id", async (req, res) => {
   const id = req.params.id;
   const username = req.body.username;
+  const name = req.body.name;
+  const isAdmin = req.body.isAdmin ? true : false;
   //  const discordId = req.body.discordId;
 
   const user = await models.User.findOne({
@@ -89,11 +91,13 @@ router.post("/edit/:id", async (req, res) => {
     return res.redirect("/users");
   }
 
-  debug(`Editing user [${id}] ${user.username} -> ${username}`);
+  debug(`Editing user [${id}] ${user.username}`);
 
   // Perform the update
   await user.update({
     username,
+    name,
+    isAdmin,
   });
 
   // Send a flash message that the user was edited.

@@ -26,6 +26,12 @@
       "request": "launch",
       "name": "Debug Config Env",
       "program": "${workspaceFolder}/utils/configEnv.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Request Discord OAUth token",
+      "program": "${workspaceFolder}/utils/getDiscordOAuthToken.js"
     }
   ]
 }

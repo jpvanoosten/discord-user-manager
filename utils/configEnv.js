@@ -21,7 +21,6 @@ try {
   crypto = require("crypto");
 } catch (err) {
   console.log("Crypto support is disabled!");
-  return;
 }
 
 function generatePassword(length = 256) {

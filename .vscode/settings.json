@@ -5,6 +5,5 @@
   "editor.codeActionsOnSave": {
     "source.fixAll.eslint": true
   },
-  "files.eol": "\n",
   "jest.pathToConfig": "jest.config.js"
 }

@@ -46,20 +46,20 @@ if user && user.isAdmin
         form(method="post" action="/users/add")
           .modal-body
             .form-group.row
-              label.col-sm-3.col-form-label(for="username" ) Username
+              label.col-sm-3.col-form-label(for="username") Username
               .col-sm-9
                 input.form-control#username(type="text" placeholder="username" name="username" required)
             .form-group.row
-              label.col-sm-3.col-form-label(for="name" ) Name
+              label.col-sm-3.col-form-label(for="name") Name
               .col-sm-9
                 input.form-control#name(type="text" placeholder="name" name="name" required)
             .form-group.row
-              label.col-sm-3.col-form-label(for="password" ) Password
+              label.col-sm-3.col-form-label(for="password") Password
               .col-sm-9
                 .input-group
                   input.form-control#password(type="password" placeholder="password" name="password" required)
                   .input-group-append
-                    button.btn.btn-primary(type="button" data-tooltip="true" title="Generate a random password") Generate
+                    button.btn.btn-primary#generatePassword(type="button" data-tooltip="true" title="Generate a random password" data-passwordlength="12") Generate
             .form-group.row
               .col-sm-3 Admin
               .col-sm-9

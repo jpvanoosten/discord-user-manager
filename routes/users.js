@@ -1,4 +1,5 @@
 // const createError = require("http-errors");
+const bcrypt = require("bcrypt");
 const debug = require("debug")("discord-user-manager:users");
 const express = require("express");
 const Sequelize = require("sequelize");
@@ -73,6 +74,53 @@ router.get("/", async (req, res) => {
   });
 });
 
+// Add a user
+router.post("/add", async (req, res) => {
+  const username = req.body.username;
+  const name = req.body.name;
+  const password = bcrypt.hashSync(req.body.password, 10);
+  const isAdmin = req.body.isAdmin ? true : false;
+
+  // Check if user already exists.
+  // Usernames must be uniqe.
+  let user = await models.User.findOne({
+    where: {
+      username,
+    },
+  });
+
+  if (user) {
+    req.flash("info", {
+      userAddedErrorMessage: `User with username ${username} already exists.`,
+    });
+
+    return res.redirect("back");
+  }
+
+  debug(`Adding user ${name} (${username})`);
+
+  user = await models.User.create({
+    username,
+    name,
+    password,
+    isAdmin,
+  });
+
+  if (!user) {
+    req.flash("info", {
+      userAddedErrorMessage: `Error adding user ${name} (${username})`,
+    });
+
+    return res.redirect("back");
+  }
+
+  req.flash("info", {
+    userAddedMessage: `Successfully added ${user.name} (${user.username})`,
+  });
+
+  return res.redirect("back");
+});
+
 // Edit a user
 router.post("/edit/:id", async (req, res) => {
   const id = req.params.id;
@@ -108,6 +156,7 @@ router.post("/edit/:id", async (req, res) => {
   res.redirect("/users");
 });
 
+// Delete a user.
 router.post("/delete/:id", async (req, res) => {
   const id = req.params.id;
 

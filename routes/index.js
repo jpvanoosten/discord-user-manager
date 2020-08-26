@@ -39,15 +39,21 @@ router.get("/", async (req, res) => {
 
 /* GET privacy-policy page. */
 router.get("/privacy-policy", (req, res) => {
+  const flashMessages = req.flash("info")[0];
+
   res.render("privacy-policy", {
     pageTitle: "Privacy Policy",
+    ...flashMessages,
   });
 });
 
 /* GET code-of-conduct page. */
 router.get("/code-of-conduct", (req, res) => {
+  const flashMessages = req.flash("info")[0];
+
   res.render("code-of-conduct", {
     pageTitle: "Code of Conduct",
+    ...flashMessages,
   });
 });
 

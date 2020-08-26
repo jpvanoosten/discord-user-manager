@@ -3,14 +3,10 @@
     "browser": true,
     "es6": true,
     "node": true,
+    "jquery": true,
     "jest/globals": true
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:jest/recommended",
-    "plugin:jest/style",
-    "prettier"
-  ],
+  "extends": ["eslint:recommended", "plugin:jest/recommended", "plugin:jest/style", "prettier"],
   "globals": {
     "Atomics": "readonly",
     "SharedArrayBuffer": "readonly"
@@ -25,5 +21,5 @@
   "rules": {
     "prettier/prettier": ["error"]
   },
-  "plugins": ["jest", "prettier"]
+  "plugins": ["jest", "jquery", "prettier"]
 }

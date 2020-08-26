@@ -22,10 +22,48 @@ header.fixed-top
       if codeOfConduct
         if user
           if user.isAdmin
-            a.btn.btn-success.mr-2(role="button" href="#")
+            button.btn.btn-success.mr-2(
+              role="button"
+              data-toggle="modal" 
+              data-target="#addUserModal"
+              data-placement="top"
+            )
               i.fa.fa-plus
               |  Add user
           a.btn.btn-primary(role="button" href="/logout") Log out
         else
           a.btn.btn-primary(role="button" href="/login") Log in
 
+if user && user.isAdmin
+  // Add user modal dialog.
+  .modal.fade#addUserModal(tabindex="-1" role="dialog" aria-labelledby="addUserModalTitle" aria-hidden="true")
+    .modal-dialog.modal-dialog-centered(role="document")
+      .modal-content
+        .modal-header
+          h5.modal-title#addUserModalTitle Add User
+          button.close(type="button" data-dismiss="modal" aria-label="Close")
+            span(aria-hidden="true") &times;
+        form(method="post" action="/users/add")
+          .modal-body
+            .form-group.row
+              label.col-sm-3.col-form-label(for="username" ) Username
+              .col-sm-9
+                input.form-control#username(type="text" placeholder="username" name="username" required)
+            .form-group.row
+              label.col-sm-3.col-form-label(for="name" ) Name
+              .col-sm-9
+                input.form-control#name(type="text" placeholder="name" name="name" required)
+            .form-group.row
+              label.col-sm-3.col-form-label(for="password" ) Password
+              .col-sm-9
+                input.form-control#password(type="password" placeholder="password" name="password" required)
+            .form-group.row
+              .col-sm-3 Admin
+              .col-sm-9
+                .form-check
+                  input.form-check-input#isAdmin(type="checkbox" name="isAdmin")
+          .modal-footer
+            button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
+            button.btn.btn-success(type="submit")
+              i.fa.fa-plus
+              |  Add

@@ -1,0 +1,31 @@
+// User added alert
+if ( userAddedMessage )
+  .alert.alert-success.alert-top.alert-dismissible.fade.show(role="alert")
+    button.close(type="button" data-dismiss="alert" aria-label="Close")
+      span(aria-hidden="true") &times;
+    h4.alert-heading User added.
+    p= userAddedMessage
+
+// User added error alert
+if ( userAddedErrorMessage )
+  .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
+    button.close(type="button" data-dismiss="alert" aria-label="Close")
+      span(aria-hidden="true") &times;
+    h4.alert-heading Error adding user.
+    p= userAddedErrorMessage
+
+// User updated alert
+if ( userUpdatedMessage )
+  .alert.alert-success.alert-top.alert-dismissible.fade.show(role="alert")
+    button.close(type="button" data-dismiss="alert" aria-label="Close")
+      span(aria-hidden="true") &times;
+    h4.alert-heading User edit succeeded.
+    p= userUpdatedMessage
+
+// User deleted alert
+if ( userDeletedMessage )
+  .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
+    button.close(type="button" data-dismiss="alert" aria-label="Close")
+      span(aria-hidden="true") &times;
+    h4.alert-heading User deleted.
+    p= userDeletedMessage

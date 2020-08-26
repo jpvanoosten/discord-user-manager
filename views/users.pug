@@ -102,9 +102,6 @@ mixin paginationControls
           href=`/users?q=${search}&offset=${(numPages-1)*limit}&limit=${limit}`
         ) Last
 
-block append head
-  link(rel="stylesheet" href="/css/alerts.css")
-
 block append scripts
   script.
     // Enable tooltips on elements with a data-tooltip="true" attribute.
@@ -167,26 +164,7 @@ block append scripts
         modal.find("#discordId").val(discordId);
         modal.find("#isAdmin").prop("checked", isAdmin ? true : false);
       });
-
-      // Alerts "slide up" when closed.
-      $(".alert").on("close.bs.alert", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var alert = $(this).closest(".alert");
-        alert.animate({
-          top: -alert.outerHeight(),
-          opacity: 0,
-        }, "slow", function() {
-          $(this).remove();
-        });
-      });
-
-      // Automatically close the alert after a few seconds.
-      setTimeout(function() {
-        $(".alert").alert("close");
-      }, 5000);
-    });
+    })
 
     // Clear the search box.
     function clearSearch()
@@ -313,19 +291,3 @@ block content
           .modal-footer
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
             button.btn.btn-danger(type="submit" data-dismiss="modal") Delete
-
-  // User updated alert
-  if ( userUpdatedMessage )
-    .alert.alert-success.alert-top.alert-dismissible.fade.show(role="alert")
-      button.close(type="button" data-dismiss="alert" aria-label="Close")
-        span(aria-hidden="true") &times;
-      h4.alert-heading User edit succeeded.
-      p= userUpdatedMessage
-
-  // User deleted alert
-  if ( userDeletedMessage )
-    .alert.alert-danger.alert-top.alert-dismissible.fade.show(role="alert")
-      button.close(type="button" data-dismiss="alert" aria-label="Close")
-        span(aria-hidden="true") &times;
-      h4.alert-heading User deleted.
-      p= userDeletedMessage

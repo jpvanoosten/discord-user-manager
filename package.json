@@ -35,7 +35,7 @@
     "passport-local": "^1.0.0",
     "pug": "^3.0.0",
     "sequelize": "^5.22.3",
-    "sqlite3": "^4.1.0"
+    "sqlite3": "^5.0.0"
   },
   "devDependencies": {
     "@types/jest": "^24.0.19",

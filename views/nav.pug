@@ -56,7 +56,10 @@ if user && user.isAdmin
             .form-group.row
               label.col-sm-3.col-form-label(for="password" ) Password
               .col-sm-9
-                input.form-control#password(type="password" placeholder="password" name="password" required)
+                .input-group
+                  input.form-control#password(type="password" placeholder="password" name="password" required)
+                  .input-group-append
+                    button.btn.btn-primary(type="button" data-tooltip="true" title="Generate a random password") Generate
             .form-group.row
               .col-sm-3 Admin
               .col-sm-9

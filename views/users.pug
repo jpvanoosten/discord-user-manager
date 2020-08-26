@@ -106,14 +106,6 @@ block append scripts
   script.
     // Enable tooltips on elements with a data-tooltip="true" attribute.
     $(function () {
-      $("[data-tooltip='true']").tooltip({
-        trigger: "hover"  // This breaks tootips on mobile but it's better than having the tootip appear over the modal.
-      });
-      // Hide the tooltip if the button is clicked.
-      $("[data-tooltip='true']").on("click", function() {
-        $(this).tooltip("hide");
-      });
-
       // Populate the edit user modal with data on show.
       $("#editUserModal").on("show.bs.modal", function(event) {
         var button = $(event.relatedTarget); // Button that triggered the event.

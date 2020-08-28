@@ -32,6 +32,12 @@
       "request": "launch",
       "name": "Request Discord OAUth token",
       "program": "${workspaceFolder}/utils/getDiscordOAuthToken.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Send Test Mail",
+      "program": "${workspaceFolder}/utils/sendTestMail.js"
     }
   ]
 }

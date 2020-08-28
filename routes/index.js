@@ -29,7 +29,6 @@ router.get("/", async (req, res) => {
     debug(`An error occured while getting URL for welcome channel: ${err}`);
   }
 
-  // eslint-disable-next-line no-unused-vars
   res.render("index", {
     pageTitle: "Home",
     ...flashMessages,

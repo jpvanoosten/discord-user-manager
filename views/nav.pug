@@ -40,7 +40,7 @@ if user && user.isAdmin
     .modal-dialog.modal-dialog-centered(role="document")
       .modal-content
         .modal-header
-          h5.modal-title#addUserModalTitle Add User
+          h5.modal-title Add User
           button.close(type="button" data-dismiss="modal" aria-label="Close")
             span(aria-hidden="true") &times;
         form(method="post" action="/users/add")
@@ -59,7 +59,7 @@ if user && user.isAdmin
                 .input-group
                   input.form-control#password(type="password" placeholder="password" name="password" required)
                   .input-group-append
-                    button.btn.btn-primary#generatePassword(type="button" data-tooltip="true" title="Generate a random password" data-passwordlength="12") Generate
+                    button.btn.btn-primary(type="button" name="generatePassword" data-tooltip="true" title="Generate a random password" data-passwordlength="12") Generate
             .form-group.row
               .col-sm-3 Admin
               .col-sm-9

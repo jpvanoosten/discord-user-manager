@@ -104,57 +104,51 @@ mixin paginationControls
 
 block append scripts
   script.
-    // Enable tooltips on elements with a data-tooltip="true" attribute.
     $(function () {
       // Populate the edit user modal with data on show.
       $("#editUserModal").on("show.bs.modal", function(event) {
         var button = $(event.relatedTarget); // Button that triggered the event.
+
+        // Get data- fields on the button.
         var userId = button.data("userid");
         var username = button.data("username");
         var name = button.data("name");
         var discordId = button.data("discordid");
         var isAdmin = button.data("isadmin");
+
         var modal = $(this);
+        modal.find(".modal-title").text(`Edit ${username}`);
+
         var form = modal.find("form");
         form.attr("action", `/users/edit/${userId}`);
-        // Without this, the form never gets submitted when used in a 
-        // bootstrap modal. I think it's because of the data-toggle="modal"
-        // on the submit button overrides the form submit event.
-        form.find("[type='submit']").on("click", function() {
-          form.submit();
-        });
-        modal.find(".modal-title").text(`Edit ${username}`);
-        modal.find("#userId").val(userId);
-        modal.find("#username").val(username);
-        modal.find("#name").val(name);
-        modal.find("#discordId").val(discordId);
-        modal.find("#isAdmin").prop("checked", isAdmin ? true : false);
-        console.log("Is Admin: ", isAdmin);
+        form.find("[name=userId]").val(userId);
+        form.find("[name=username]").val(username);
+        form.find("[name=name]").val(name);
+        form.find("[name=discordId]").val(discordId);
+        form.find("[name=isAdmin]").prop("checked", isAdmin ? true : false);
       });
 
       // Populate the delete user modal with data on show.
       $("#deleteUserModal").on("show.bs.modal", function(event) {
         var button = $(event.relatedTarget); // Button that triggered the event.
+
+        // Get data- fields on button.
         var userId = button.data("userid");
         var username = button.data("username");
         var name = button.data("name");
         var discordId = button.data("discordid");
         var isAdmin = button.data("isadmin");
+
         var modal = $(this);
+        modal.find(".modal-title").text(`Delete ${username}`);
+
         var form = modal.find("form");
         form.attr("action", `/users/delete/${userId}`);
-        // Without this, the form never gets submitted when used in a 
-        // bootstrap modal. I think it's because of the data-toggle="modal"
-        // on the submit button overrides the form submit event.
-        form.find("[type='submit']").on("click", function() {
-          form.submit();
-        });
-        modal.find(".modal-title").text(`Delete ${username}`);
-        modal.find("#userId").val(userId);
-        modal.find("#username").val(username);
-        modal.find("#name").val(name);
-        modal.find("#discordId").val(discordId);
-        modal.find("#isAdmin").prop("checked", isAdmin ? true : false);
+        form.find("[name=userId]").val(userId);
+        form.find("[name=username]").val(username);
+        form.find("[name=name]").val(name);
+        form.find("[name=discordId]").val(discordId);
+        form.find("[name=isAdmin]").prop("checked", isAdmin ? true : false);
       });
     })
 
@@ -215,7 +209,7 @@ block content
     .modal-dialog.modal-dialog-centered(role="document")
       .modal-content
         .modal-header
-          h5.modal-title#editUserModalTitle Edit User
+          h5.modal-title Edit User
           button.close(type="button" data-dismiss="modal" aria-label="Close")
             span(aria-hidden="true") &times;
         form(method="post" action="/users/edit/:id")
@@ -224,35 +218,42 @@ block content
               .form-group.row
                 label.col-sm-3.col-form-label(for="userId") User ID
                 .col-sm-9
-                  input.form-control#userId(type="text" value="ID" name="userId" readonly)
+                  input.form-control(type="text" value="ID" name="userId" readonly)
             .form-group.row
               label.col-sm-3.col-form-label(for="username" ) Username
               .col-sm-9
-                input.form-control#username(type="text" value="username" name="username")
+                input.form-control(type="text" value="username" name="username")
             .form-group.row
               label.col-sm-3.col-form-label(for="name" ) Name
               .col-sm-9
-                input.form-control#name(type="text" value="name" name="name")
+                input.form-control(type="text" value="name" name="name")
             fieldset(disabled)
               .form-group.row
                 label.col-sm-3.col-form-label(for="discordId") Discord ID
                 .col-sm-9
-                  input.form-control#discordId(type="text" value="discordId" name="discordId" readonly)
+                  input.form-control(type="text" value="discordId" name="discordId" readonly)
+            .form-group.row
+              label.col-sm-3.col-form-label(for="password") Password
+              .col-sm-9
+                .input-group
+                  input.form-control(type="password" placeholder="password" name="password" required)
+                  .input-group-append
+                    button.btn.btn-primary(type="button" name="generatePassword" data-tooltip="true" title="Generate a random password" data-passwordlength="12") Generate
             .form-group.row
               .col-sm-3 Admin
               .col-sm-9
                 .form-check
-                  input.form-check-input#isAdmin(type="checkbox" name="isAdmin")
+                  input.form-check-input(type="checkbox" name="isAdmin")
           .modal-footer
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
-            button.btn.btn-primary(type="submit" data-dismiss="modal") Save
+            button.btn.btn-primary(type="submit") Save
 
   // Delete User Modal dialog.
   .modal.fade#deleteUserModal(tabindex="-1" role="dialog" aria-labelledby="deleteUserModalTitle" aria-hidden="true")
     .modal-dialog.modal-dialog-centered(role="document")
       .modal-content
         .modal-header
-          h5.modal-title#deleteUserModalTitle Delete User
+          h5.modal-title Delete User
           button.close(type="button" data-dismiss="modal" aria-label="Close")
             span(aria-hidden="true") &times;
         form(method="post" action="/users/delete/:id")
@@ -262,24 +263,24 @@ block content
               .form-group.row
                 label.col-sm-3.col-form-label(for="userId") User ID
                 .col-sm-9
-                  input.form-control-plaintext#userId(value="ID" name="userId" readonly)
+                  input.form-control-plaintext(value="ID" name="userId" readonly)
               .form-group.row
                 label.col-sm-3.col-form-label(for="username" ) Username
                 .col-sm-9
-                  input.form-control-plaintext#username(value="username" name="username")
+                  input.form-control-plaintext(value="username" name="username")
               .form-group.row
                 label.col-sm-3.col-form-label(for="name" ) Name
                 .col-sm-9
-                  input.form-control-plaintext#name(value="name" name="name")
+                  input.form-control-plaintext(value="name" name="name")
               .form-group.row
                 label.col-sm-3.col-form-label(for="discordId") Discord ID
                 .col-sm-9
-                  input.form-control-plaintext#discordId(type="text" value="discordId" name="discordId" readonly)
+                  input.form-control-plaintext(type="text" value="discordId" name="discordId" readonly)
               .form-group.row
                 .col-sm-3 Admin
                 .col-sm-9
                   .form-check
-                    input.form-check-input#isAdmin(type="checkbox" name="isAdmin")
+                    input.form-check-input(type="checkbox" name="isAdmin")
           .modal-footer
             button.btn.btn-secondary(type="button" data-dismiss="modal") Cancel
             button.btn.btn-danger(type="submit" data-dismiss="modal") Delete

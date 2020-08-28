@@ -1,28 +1,5 @@
 extends layout
 
-block append scripts
-  script.
-    $(function () {
-      // Alerts "slide up" when closed.
-      $(".alert").on("close.bs.alert", function(event) {
-        event.preventDefault();
-        event.stopPropagation();
-
-        var alert = $(this).closest(".alert");
-        alert.animate({
-          top: -alert.outerHeight(),
-          opacity: 0,
-        }, "slow", function() {
-          $(this).remove();
-        });
-      });
-
-      // Automatically close the discord login error alert after a few seconds.
-      setTimeout(function() {
-        $("#discordLoginErrorAlert").alert("close");
-      }, 30000);
-    });
-
 block content
   main(role="main" style="padding-top: 86px;")
     section.jumbotron.jumbotron-fluid.text-center(style="padding: 60px 30px;")

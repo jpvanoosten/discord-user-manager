@@ -1,6 +1,6 @@
 $(document).ready(function () {
   //#region Form validation.
-  $("#addUserModal form").validate({
+  $.validator.setDefaults({
     rules: {
       username: {
         required: true,
@@ -37,18 +37,36 @@ $(document).ready(function () {
       $(element).removeClass("is-invalid").addClass("is-valid");
     },
     errorPlacement: function (error, element) {
-      if (element.prop("id") === "password") {
+      if (element.attr("name") === "password") {
         error.insertAfter(element.parent());
       } else {
         error.insertAfter(element);
       }
     },
+  });
+
+  $("#addUserModal form").validate({
     submitHandler: function (form) {
       console.log("Form submitted.");
       form.submit();
       $("#addUserModal").modal("hide");
     },
   });
+
+  $("#editUserModal form").validate({
+    rules: {
+      password: {
+        required: false, // Passwords are not required when editing a user.
+        minlength: 8,
+      },
+    },
+    submitHandler: function (form) {
+      console.log("Form submitted.");
+      form.submit();
+      $("#editUserModal").modal("hide");
+    },
+  });
+
   //#endregion
 
   //#region Generate a random password
@@ -69,10 +87,11 @@ $(document).ready(function () {
 
     return password;
   }
+
   // "Generate password" button click event:
-  $("#generatePassword").click(function () {
-    // Get the password field.
-    var password = $("#password");
+  $("form [name=generatePassword]").click(function () {
+    // Get the closest password field.
+    var password = $(this).parentsUntil("form").find("[name=password]");
     // Use the data-passwordlength attribute on the button if it is specified.
     var passwordLength = $(this).data("passwordlength") || 8;
     var newPassword = GenerateRandomPassword(passwordLength);

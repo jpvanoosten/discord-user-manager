@@ -91,7 +91,7 @@ router.post("/add", async (req, res) => {
 
   if (user) {
     req.flash("info", {
-      userAddedErrorMessage: `User with username ${username} already exists.`,
+      errorAlert: `User with username ${username} already exists.`,
     });
 
     return res.redirect("back");
@@ -108,14 +108,14 @@ router.post("/add", async (req, res) => {
 
   if (!user) {
     req.flash("info", {
-      userAddedErrorMessage: `Error adding user ${name} (${username})`,
+      errorAlert: `Error adding user ${name} (${username})`,
     });
 
     return res.redirect("back");
   }
 
   req.flash("info", {
-    userAddedMessage: `Successfully added ${user.name} (${user.username})`,
+    successAlert: `Successfully added ${user.name} (${user.username})`,
   });
 
   return res.redirect("back");
@@ -126,6 +126,7 @@ router.post("/edit/:id", async (req, res) => {
   const id = req.params.id;
   const username = req.body.username;
   const name = req.body.name;
+  const password = req.body.password ? bcrypt.hashSync(req.body.password, 10) : undefined;
   const isAdmin = req.body.isAdmin ? true : false;
   //  const discordId = req.body.discordId;
 
@@ -145,12 +146,13 @@ router.post("/edit/:id", async (req, res) => {
   await user.update({
     username,
     name,
+    password,
     isAdmin,
   });
 
   // Send a flash message that the user was edited.
   req.flash("info", {
-    userUpdatedMessage: `User with id ${id} has been succesfully edited.`,
+    successAlert: `User with id ${id} has been succesfully edited.`,
   });
 
   res.redirect("/users");
@@ -177,7 +179,7 @@ router.post("/delete/:id", async (req, res) => {
 
   // Send a flash message that the user was deleted.
   req.flash("info", {
-    userDeletedMessage: `User with id ${id} has been succesfully deleted.`,
+    infoAlert: `User with id ${id} has been succesfully deleted.`,
   });
 
   res.redirect("/users");

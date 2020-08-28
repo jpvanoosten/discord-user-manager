@@ -166,7 +166,7 @@ app.use("/logout", isAuthenticated, logoutRouter);
 app.use("/google", isPrivacyPolicy, isCodeOfConduct, googleRouter);
 app.use("/discord", isPrivacyPolicy, isCodeOfConduct, isAuthenticated, discordRouter);
 
-// Make sure only logged in users can access the /users page.
+// Make sure only logged in admins can access the /users page.
 app.use("/users", isAdmin, usersRouter);
 
 // catch 404 and forward to error handler

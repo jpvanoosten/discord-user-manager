@@ -68,14 +68,16 @@ router.get("/callback", (req, res, next) => {
         debug(`User ${profile.username} is banned: ${banReason}`);
 
         req.flash("info", {
-          discordLoginError: `Could not connect to the Discord server because your account is banned: ${banReason}. Please contact the Discord owner for more information.`,
+          errorAlert: `Could not connect to the Discord server because your account is banned: ${banReason}. Please contact the Discord owner for more information.`,
         });
       }
     } catch (err) {
-      debug(`An error occured while adding ${user.name} to the Discord server: ${err}`);
+      // This can happen if either the bot doesn't have the "Ban Members" permission on the
+      // server or the user is tyring to use a Discord account that is registered to another user.
+      debug(`An error occured while adding ${user.name} to the Discord server: ${err}.`);
 
       req.flash("info", {
-        discordLoginError:
+        errorAlert:
           "An error occured when adding you to the Discord server.\nPlease contact the owner of the Discord server for more information.",
       });
     }

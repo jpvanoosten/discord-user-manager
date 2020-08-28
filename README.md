@@ -278,6 +278,7 @@ Before the Discord User Manager application can start working to manage the user
 - Under **Bot Permissions** select the following permissions:
   - Manage Roles
   - Kick Members
+  - Ban Members
   - Create Instant Invite
   - Manage Nicknames
   - Send Messages

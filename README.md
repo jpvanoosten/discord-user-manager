@@ -17,7 +17,7 @@ The **Discord User Manager** is built with JavaScript using [Express] and the [P
 | [connect-session-sequelize] | ^6.0.0           | SQL Session store using [Sequelize] as a storage backend.                                                                       |
 | [cookie-parser]             | ~1.4.4           | Parse the `Cookie` header and populate `req.cookies` property with an object keyed by the cookie name.                          |
 | [debug]                     | ~2.6.9           | A JavaScript debugging utility.                                                                                                 |
-| [discord.js]                | ^12.2.0          | A powerful library for interacting with the Discord API.                                                                        |
+| [discord.js]                | ^12.3.1          | A powerful library for interacting with the Discord API.                                                                        |
 | [dotenv]                    | ^8.1.0           | Loads environment variables from a `.env` file into the `process.env` global variable.                                          |
 | [express]                   | ~4.16.1          | A fast, unopinionated, minimalist web framework for [Node.js].                                                                  |
 | [express-session]           | ^1.16.2          | [Express] middleware which will populate the `req.session` object.                                                              |
@@ -29,25 +29,31 @@ The **Discord User Manager** is built with JavaScript using [Express] and the [P
 | [passport-discord]          | ^0.1.3           | [Passport] strategy for authentication with [Discord] through the [OAuth 2.0] API.                                              |
 | [passport-google-oauth20]   | ^2.0.0           | [Passport] strategy for authenticating with [Google] using the [OAuth 2.0] API.                                                 |
 | [passport-local]            | ^1.0.0           | [Passport] strategy for authenticating with username and password.                                                              |
-| [pug]                       | 2.0.0-beta11     | High performance template engine.                                                                                               |
+| [pug]                       | ^3.0.0           | High performance template engine.                                                                                               |
 | [sequelize]                 | ^5.18.4          | A promise-based [Node.js] ORM for Postgres, MySQL, MariaDB, SQLite, and Microsoft SQL Server.                                   |
-| [sqlite3]                   | ^4.1.0           | Asynchronous, non-blocking [SQLite3] bindings for [Node.js].                                                                    |
+| [sqlite3]                   | ^5.0.0           | Asynchronous, non-blocking [SQLite3] bindings for [Node.js].                                                                    |
 
 ## Development Dependencies
 
 In addition to the regular dependencies, the **Discord User Manager** also has the following development dependecies.
 
-| Package                | Semantic Version | Description                                                                                         |
-| ---------------------- | ---------------- | --------------------------------------------------------------------------------------------------- |
-| [@types/jest]          | ^24.0.19         | Type definitinos for [Jest].                                                                        |
-| [browser-sync]         | ^2.26.7          | Automatically syncronize changes to multiple devices during development.                            |
-| [connect-browser-sync] | ^2.1.0           | Injects the necessary [BrowserSync] &lt;script&gt; tags into the HTML pages.                        |
-| [eslint]               | ^6.3.0           | [ESLint] is a tool for identifying and reporting on patterns found in ECMAScript/JavaScript code.   |
-| [eslint-plugin-jest]   | ^22.19.0         | [ESLint] plugin for [Jest].                                                                         |
-| [jest]                 | ^24.9.0          | A JavaScript testing framework.                                                                     |
-| [nodemon]              | ^1.19.2          | A tool that automatically restarts the [Node.JS] application when file changes are detected.        |
-| [sequelize-cli]        | ^5.5.1           | The [Sequelize] Command Line Interface (CLI).                                                       |
-| [yargs]                | ^14.0.0          | Build interactive command line tools by parsing arguments and generating an elegant user interface. |
+| Package                  | Semantic Version | Description                                                                                         |
+| ------------------------ | ---------------- | --------------------------------------------------------------------------------------------------- |
+| [@types/jest]            | ^24.0.19         | Type definitinos for [Jest].                                                                        |
+| [browser-sync]           | ^2.26.7          | Automatically syncronize changes to multiple devices during development.                            |
+| [connect-browser-sync]   | ^2.1.0           | Injects the necessary [BrowserSync] &lt;script&gt; tags into the HTML pages.                        |
+| [eslint]                 | ^6.3.0           | [ESLint] is a tool for identifying and reporting on patterns found in ECMAScript/JavaScript code.   |
+| [eslint-config-prettier] | ^6.11.0          | Turns off all rules that are unnecessary or might conflict with Prettier.                           |
+| [eslint-plugin-jest]     | ^22.19.0         | [ESLint] plugin for [Jest].                                                                         |
+| [eslint-plugin-jquery]   | ^1.5.1           | Adds support for JQuery in ESLint                                                                   |
+| [eslint-plugin-prettier] | ^3.1.4           | Runs Prettier as an ESLint rule and reports differences as individual ESLint issues.                |
+| [jest]                   | ^24.9.0          | A JavaScript testing framework.                                                                     |
+| [nodemon]                | ^1.19.2          | A tool that automatically restarts the [Node.JS] application when file changes are detected.        |
+| [open]                   | ^7.2.0           | Open stuff like URLs, files, executables.                                                           |
+| [prettier]               | ^2.1.0           | Opinionated Code Formatter.                                                                         |
+| [sequelize-cli]          | ^5.5.1           | The [Sequelize] Command Line Interface (CLI).                                                       |
+| [stoppable]              | ^1.1.0           | Node's server.close() - the way you probably expected it to work by default.                        |
+| [yargs]                  | ^14.0.0          | Build interactive command line tools by parsing arguments and generating an elegant user interface. |
 
 ## Installation
 
@@ -392,7 +398,7 @@ module.exports = {
   // Can this command only be run in the context of a guild channel?
   guildOnly: true,
 
-  // Elapsed time between subsequent execution of the command.
+  // Elapsed time (in seconds) between subsequent execution of the command.
   cooldown: 1,
 
   // The function that executes the command.
@@ -428,142 +434,27 @@ module.exports = {
 
 # Testing
 
-[Jest] is used to perform unit testing on the server. Some of the test cases require a valid Discord user in order to run. A valid OAuth 2.0 access token is required for the test user. At the time of this writing, there is currently no automatic way to get an access token for a user. The easiest way to get an access token is using [Postman].
+[Jest] is used to perform unit testing on the server. Some of the test cases require a valid Discord user in order to run. A valid OAuth 2.0 access token is required for the test user. Use the `utils/getDiscordOAuthToken.js` script to populate the `TEST_USER_ACCESS_TOKEN` and `TEST_USER_DISCORD_ID` values in the `.env` file.
 
-Go to https://www.postman.com/downloads/ and get the latest version of the Postman client application. Follow the installation instructions and launch the Postman application.
+> Note: If the `TEST_USER_DISCORD_ID` and `TEST_USER_ACCESS_TOKEN` keys are not in the `.env` file, nothing will be replaced. Please make sure these keys exist in the `.env` file before running this script.
 
-![Postman Desktop Application](docs/images/postman-1.png)
+Using the terminal:
 
-Create a new collection by selecting **File > New > Collection** from the main menu or select the **Collections** pane and click **New Collection**.
-
-![Create a new collection](docs/images/postman-2.png)
-
-Set the collection name to **Discord Access Token** and optionally provide a description.
-
-Click on the **Variables** tab.
-
-![Collection variables](docs/images/postman-3.png)
-
-Create a variable with the name **discordClientID** and copy the discord client ID from the Discord application that you created earlier and paste it in the **Current Value** of the variable. This should be the same value as the `DISCORD_CLIENT_ID` in the `.env` file.
-
-Create another variable with the name **discordClientSecret** and copy the discord client secret from the Discord application that you created earlier and paste it in the **Current Value** of the variable. This should be the same value as the `DISCORD_CLIENT_SECRET` in the `.env` file.
-
-> Before continuing, you may need to create or save the collection to ensure the collection variables have been created. Click on the **Create** or **Update** button to save the collection settings. Open the collection editor again by selecting the three dots next to the collection name and select **Edit** from the popup menu that appears.
-
-Click on the **Authorization** tab.
-
-![Authorization tab](docs/images/postman-4.png)
-
-Set the Authorization **Type** to **OAuth 2.0** and the **Add auth data to** option to **Request Headers**.
-
-Set the **Header Prefix** to **Bearer** and click the **Get New Access Token** button.
-
-![Get new access token](docs/images/postman-5.png)
-
-Set the **Token Name** to **Discord Access Token** or something similar.
-
-Set the **Grant Type** to **Authorization Code**.
-
-Set the **Callback URL** to **http://localhost:3000/discord/callback**. The callback URL must match one of the redirects that you configured in the OAuth2 settings in your Discord application or the token request will fail. The Discord User Manager does not need to be running in order to retrieve the access token.
-
-Make sure the **Authorize using browser** is not checked.
-
-Set the **Auth URL** to **https://discord.com/api/oauth2/authorize**.
-
-Set the **Access Token URL** to **https://discord.com/api/oauth2/token**.
-
-Set the **Client ID** to **{{discordClientID}}**.
-
-Set the **Client Secret** to **{{discordClientSecret}}**.
-
-Set the **Scope** to **identify email guilds.join**.
-
-The **State** can be left blank. This is not required by the Discord OAuth access token request.
-
-Set the **Client Authentication** to **Send as Basic Auth header**.
-
-With all of the fields filled in, click the **Request Token** button.
-
-![Authorize access to your account](docs/images/postman-6.png)
-
-Click the **Authorize** button on the screen that appears.
-
-![Manage access tokens](docs/images/postman-7.png)
-
-If everything worked, the **Manage Access Tokens** dialog box should appear with the access token filled in. Click the **Use Token** button in the top-right corner to save the access token to the collection.
-
-![Copy access token](docs/images/postman-8.png)
-
-Copy the access token from the **Access Token** text box and paste it in the value for the `TEST_USER_ACCESS_TOKEN` variable in the `.env` file.
-
-## Get Discord User ID
-
-The easiest way to get the ID of the Discord user that requested the access token is to hit the **/users/@me** Discord API endpoint.
-
-In Postman, add a new request to the **Discord Access Token** collection by selecting **File > New > Request** from the main menu.
-
-![Add new request](docs/images/postman-9.png)
-
-Give the new request a name such as **Get Current User**. Optionally, you can also provide a description.
-
-Click the **Save to Discord Access Token** to save the new request to the **Discord Access Token** collection.
-
-![Get Current User request](docs/images/postman-10.png)
-
-The new request should open.
-
-Set the request verb to **GET**.
-
-Set the request URL to **https://discord.com/api/users/@me**.
-
-Select the **Authorization** tab and make sure that the Authorization **Type** is set to **Inherit auth from parent**.
-
-Press the **Send** button.
-
-The response body should be filled in with the identity of the currently logged in user. If you received an error, double check that the access token is valid and configured correctly in the collection settings.
-
-Copy the value of the **id** property in the response body and paste it into the value for the `TEST_USER_DISCORD_ID` variable in the `.env` file.
-
-## Revoke Access Token
-
-> Do not revoke the access token until you are finished testing. If the access token expired, you'll need to request a new token using the previous steps.
-
-When you are finished testing the Discord User Manager, you may want to revoke the access token that you received.
-
-Create another request in the **Discord Access Token** collection.
-
-![Revoke access token request](docs/images/postman-11.png)
-
-Set the request name to **Revoke Access Token** or something similar. Optionally, you can also specify a description.
-
-Click the **Save to Discord Access Token** button to add the request to the **Discord Access Token** collection.
-
-![Revoke Access Token request](docs/images/postman-12.png)
-
-Set the request verb to **POST**.
-
-Set the request URL to **https://discord.com/api/oauth2/token/revoke**.
-
-Select the **Body** tab and set the content type to **x-www-form-urlencoded**.
-
-Add a key named **client_id** and value **{{discordClientID}}**.
-
-Add another key named **client_secret** and value **{{discordClientSecret}}**.
-
-Add a key named **token** and copy-paste the access token you want to revoke.
-
-Press the **Send** button to send the request.
-
-If the request succeeded, the response body should contain an empty object. To ensure the token was revoked, send the **Get Current User** request again. If the response body contains the following data, then you know the access token has been successfully revoked.
-
-```json
-{
-  "message": "401: Unauthorized",
-  "code": 0
-}
+```bash
+node utils/getDiscordOAuthToke.js
 ```
 
-> If you need a new access token, open the collection settings and click the **Get New Access Token** button again.
+Using npm:
+
+```bash
+npm run oauth:discord
+```
+
+Using Yarn:
+
+```bash
+yarn oauth:discord
+```
 
 ## Run Jest
 
@@ -672,9 +563,15 @@ Some common reasons why some of the tests fail:
 [browsersync]: https://browsersync.io/
 [connect-browser-sync]: https://www.npmjs.com/package/connect-browser-sync
 [eslint]: https://eslint.org/
+[eslint-config-prettier]: https://www.npmjs.com/package/eslint-config-prettier
 [eslint-plugin-jest]: https://www.npmjs.com/package/eslint-plugin-jest
+[eslint-plugin-jquery]: https://www.npmjs.com/package/eslint-plugin-jquery
+[eslint-plugin-prettier]: https://www.npmjs.com/package/eslint-plugin-prettier
+[open]: https://www.npmjs.com/package/open
 [nodemon]: https://nodemon.io/
+[prettier]: https://prettier.io/
 [sequelize-cli]: https://www.npmjs.com/package/sequelize-cli
+[stoppable]: https://www.npmjs.com/package/stoppable
 [yargs]: https://www.npmjs.com/package/yargs
 [yarn]: https://yarnpkg.com/
 [google developer console]: https://console.developers.google.com/

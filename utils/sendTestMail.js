@@ -1,4 +1,6 @@
 require("dotenv").config();
+const path = require("path");
+const fs = require("fs");
 const debug = require("debug")("discord-user-manager:send-test-mail");
 const nodemailer = require("nodemailer");
 
@@ -10,13 +12,22 @@ async function main() {
     const valid = await transport.verify();
 
     if (valid) {
+      const welcomeMessagePath = path.join(__dirname, "..", "welcome-message.eml");
+      let welcomeMessage = fs.readFileSync(welcomeMessagePath, "utf-8");
+
+      welcomeMessage = welcomeMessage.replace(/«from»/g, transport.options.auth.user);
+      welcomeMessage = welcomeMessage.replace(/«name»/g, "Test");
+      welcomeMessage = welcomeMessage.replace(/«username»/g, process.env.TEST_EMAIL);
+      welcomeMessage = welcomeMessage.replace(/«password»/g, "password");
+      welcomeMessage = welcomeMessage.replace(/«server»/g, "http://localhost:3000/login");
+
       // Message object
       let message = {
-        from: "Sender <sender@example.com>",
-        to: "Recipient <recipient@example.com>",
-        subject: "Nodemailer is unicode friendly ✔",
-        text: "Hello to myself!",
-        html: "<p><b>Hello</b> to myself!</p>",
+        envelope: {
+          from: transport.options.auth.user,
+          to: [process.env.TEST_EMAIL],
+        },
+        raw: welcomeMessage,
       };
 
       const info = await transport.sendMail(message);

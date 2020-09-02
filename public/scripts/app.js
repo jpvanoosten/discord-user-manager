@@ -67,6 +67,12 @@ $(document).ready(function () {
     },
   });
 
+  // The delete user modal doesn't have any validation, but
+  // we still need to hide the modal when the form is submitted.
+  $("#deleteUserModal form").submit(function () {
+    $("#deleteUserModal").modal("hide");
+  });
+
   //#endregion
 
   //#region Generate a random password

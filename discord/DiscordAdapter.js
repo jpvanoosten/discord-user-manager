@@ -16,6 +16,7 @@ class DiscordAdapter extends EventEmitter {
     this.logWarning = this.logWarning.bind(this);
     this.logError = this.logError.bind(this);
     this.logDebug = this.logDebug.bind(this);
+    this.setNickname = this.setNickname.bind(this);
     this.addUser = this.addUser.bind(this);
     this.addRole = this.addRole.bind(this);
     this.removeRole = this.removeRole.bind(this);
@@ -480,6 +481,28 @@ class DiscordAdapter extends EventEmitter {
   }
 
   /**
+   * Set the nickname of a guild user.
+   * @param {Discord.UserResolvable|Discord.GuildMemberResolvable} userResolvable Data that resolves to a User or GuildMember object.
+   * @param {string} nickname The nickname of the user.
+   */
+  async setNickname(userResolvable, nickname) {
+    const guildMember = await this.resolveGuildMember(userResolvable);
+    if (guildMember) {
+      try {
+        await guildMember.setNickname(nickname);
+        this.logInfo(`Updated nickname for ${guildMember}`);
+      } catch (err) {
+        this.logError(`Could not set nickname (${nickname}) for ${guildMember}`);
+        debug(`Error setting nickname (${nickname}) for ${userResolvable}: ${err}`);
+        throw err;
+      }
+    } else {
+      this.logError(`Could not find ${userResolvable}`);
+      debug(`Error: Could not find ${userResolvable}`);
+    }
+  }
+
+  /**
    * Add a user to the Discord server.
    * @param {Discord.UserResolvable|Discord.GuildMemberResolvable} userResolvable Data that resolves to a User or GuildMember object.
    * @param {string} nick The nickname of the user to add to the server.
@@ -499,14 +522,9 @@ class DiscordAdapter extends EventEmitter {
     let guildMember = await this.resolveGuildMember(userResolvable);
 
     if (guildMember) {
-      debug(`User ${guildMember.user.tag} already a member of the guild.`);
+      debug(`User ${guildMember.user.tag} is already a member of the guild.`);
       // Just update the nickname.
-      try {
-        await guildMember.setNickname(nick);
-      } catch (err) {
-        debug(`An error occured while setting the nickname for ${nick}: ${err}`);
-        throw new Error(err);
-      }
+      this.setNickname(userResolvable, nick);
     } else {
       // Discord user not a member of the guild yet.
       const discordUser = await this.resolveUser(userResolvable);

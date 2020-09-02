@@ -4,7 +4,8 @@ const config = require("../config");
 
 module.exports = {
   name: "add_role",
-  description: "Add/Remove a role from a user when a reaction is added or removed from a message in welcome channel.",
+  description:
+    "Add/Remove a role from a user when a reaction is added or removed from a message in the welcome channel.",
   guildOnly: true,
   // Executed when a reaction is added.
   reactionAdd: async (reaction, user) => {

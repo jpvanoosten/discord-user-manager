@@ -1,14 +1,14 @@
-From: «from»
-To:	«name» («username»)
-Subject:	You're invited to join our Discord server!💯
+From: {{from}}
+To: {{name}} <{{email}}>
+Subject: You're invited to join our Discord server!💯
 Content-Type: text/html; charset=utf-8
 
 <p>
-«name»,
+{{name}},
 </p>
 
 <p>
-You have been invited to join our Discord server. Please link your Discord account using <a href="«server»" target=_blank>«server»</a>. Login with username <strong>«username»</strong> and password <strong>«password»</strong>.
+You have been invited to join our Discord server. Please link your Discord account using <a href="{{server}}" target=_blank>{{server}}</a>. Login with username <strong>{{email}}</strong> and password <strong>{{password}}</strong>.
 </p>
 
 <p>

@@ -15,11 +15,11 @@ async function main() {
       const welcomeMessagePath = path.join(__dirname, "..", "welcome-message.eml");
       let welcomeMessage = fs.readFileSync(welcomeMessagePath, "utf-8");
 
-      welcomeMessage = welcomeMessage.replace(/«from»/g, transport.options.auth.user);
-      welcomeMessage = welcomeMessage.replace(/«name»/g, "Test");
-      welcomeMessage = welcomeMessage.replace(/«username»/g, process.env.TEST_EMAIL);
-      welcomeMessage = welcomeMessage.replace(/«password»/g, "password");
-      welcomeMessage = welcomeMessage.replace(/«server»/g, "http://localhost:3000/login");
+      welcomeMessage = welcomeMessage.replace(/{{from}}/g, `Discord User Manager <${transport.options.auth.user}>`);
+      welcomeMessage = welcomeMessage.replace(/{{name}}/g, "Test");
+      welcomeMessage = welcomeMessage.replace(/{{email}}/g, process.env.TEST_EMAIL);
+      welcomeMessage = welcomeMessage.replace(/{{password}}/g, "password");
+      welcomeMessage = welcomeMessage.replace(/{{server}}/g, "http://localhost:3000/login");
 
       // Message object
       let message = {

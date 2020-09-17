@@ -11,6 +11,8 @@
   "scripts": {
     "configure": "node ./utils/configEnv.js",
     "oauth:discord": "node ./utils/getDiscordOAuthToken.js",
+    "db:migrate": "sequelize-cli db:migrate",
+    "db:migrate:undo": "sequelize-cli db:migrate:undo",
     "start": "node ./bin/www",
     "start:watch": "nodemon ./bin/www",
     "test": "jest"

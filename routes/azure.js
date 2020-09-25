@@ -67,7 +67,7 @@ router.get("/", passport.authenticate("azure_ad_oauth2"));
 router.get(
   "/callback",
   passport.authenticate("azure_ad_oauth2", {
-    failureRedirect: "/azure",
+    failureRedirect: "/azure/failure",
   }),
   (req, res) => {
     debug("Microsoft user successfully logged in.");
@@ -75,5 +75,14 @@ router.get(
     res.redirect("/");
   }
 );
+
+router.get("/failure", (req, res) => {
+  res.locals.message = "Failure to login";
+  res.locals.error = {
+    status: 401,
+    stack: "Unauthorized access. Please contact the administrator.",
+  };
+  return res.status(401).render("error");
+});
 
 module.exports = router;

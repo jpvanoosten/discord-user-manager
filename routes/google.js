@@ -4,18 +4,32 @@ const debug = require("debug")("discord-user-manager:google");
 const express = require("express");
 const { google } = require("googleapis");
 const passport = require("passport");
+const path = require("path");
 const router = express.Router();
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const models = require("../models");
 
-/**
- * Get a list of groups for the logged in user.
- * @param {string} accessToken The access token to use to retrieve the list of groups.
- */
-async function getGoogleGroups(accessToken) {
-  let groups = [];
+async function main() {
+  const auth = await google.auth.getClient({
+    keyFile: path.join(__dirname, "..", "gsa.json"),
+    scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
+  });
+
+  const groups = google.admin({ version: "directory_v1", auth }).groups;
+
+  const res = await groups.list({
+    userKey: "oosten.j@ade-buas.nl",
+    domain: "ade-buas.nl",
+  });
+
+  debug(res);
 }
+
+main().catch((e) => {
+  debug(`An error occured: ${e}`);
+  throw e;
+});
 
 // Google strategy for autenticating users with a Google account
 passport.use(
@@ -25,22 +39,13 @@ passport.use(
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
       callbackURL: process.env.GOOGLE_REDIRECT_URI,
     },
-    (accessToken, refreshToken, profile, done) => {
+    async (accessToken, refreshToken, profile, done) => {
       // Get the email address of the user:
       if (!profile.emails || !profile.emails.length) {
         return done("No email address associated with Google account.");
       }
 
       const email = profile.emails[0].value;
-
-      let pageToken;
-      const groups = google.admin("directory_v1").groups;
-      groups.list({
-        customer: "my_customer",
-        maxResults: 200,
-        pageToken: pageToken,
-        userKey: email,
-      });
 
       models.User.findOrCreate({
         where: {
@@ -77,7 +82,7 @@ passport.use(
 router.get(
   "/",
   passport.authenticate("google", {
-    scope: ["email", "profile", "https://www.googleapis.com/auth/admin.directory.group.readonly"],
+    scope: ["email", "profile"],
   })
 );
 

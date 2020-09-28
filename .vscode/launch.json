@@ -38,6 +38,12 @@
       "request": "launch",
       "name": "Send Test Mail",
       "program": "${workspaceFolder}/utils/sendTestMail.js"
+    },
+    {
+      "type": "node",
+      "request": "launch",
+      "name": "Test G Suite",
+      "program": "${workspaceFolder}/testGSuite.js"
     }
   ]
 }

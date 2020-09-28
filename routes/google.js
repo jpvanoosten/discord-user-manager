@@ -4,32 +4,31 @@ const debug = require("debug")("discord-user-manager:google");
 const express = require("express");
 const { google } = require("googleapis");
 const passport = require("passport");
+const fs = require("fs");
 const path = require("path");
 const router = express.Router();
 const GoogleStrategy = require("passport-google-oauth20").Strategy;
 
 const models = require("../models");
 
-async function main() {
-  const auth = await google.auth.getClient({
-    keyFile: path.join(__dirname, "..", "gsa.json"),
-    scopes: ["https://www.googleapis.com/auth/admin.directory.group.readonly"],
+const tokenPath = path.join(__dirname, "..", "token.json");
+const auth = new google.auth.OAuth2(
+  process.env.GOOGLE_CLIENT_ID,
+  process.env.GOOGLE_CLIENT_SECRET,
+  process.env.GOOGLE_REDIRECT_URI
+);
+
+if (fs.existsSync(tokenPath)) {
+  const token = fs.readFileSync(tokenPath);
+  auth.credentials = JSON.parse(token);
+
+  // Set auth globally.
+  google.options({
+    auth,
   });
-
-  const groups = google.admin({ version: "directory_v1", auth }).groups;
-
-  const res = await groups.list({
-    userKey: "oosten.j@ade-buas.nl",
-    domain: "ade-buas.nl",
-  });
-
-  debug(res);
+} else {
+  debug("Missing token file. Google groups will not be checked.");
 }
-
-main().catch((e) => {
-  debug(`An error occured: ${e}`);
-  throw e;
-});
 
 // Google strategy for autenticating users with a Google account
 passport.use(
@@ -46,6 +45,32 @@ passport.use(
       }
 
       const email = profile.emails[0].value;
+
+      try {
+        const groups = [];
+        let pageToken;
+        const service = google.admin("directory_v1");
+        do {
+          const { data } = await service.groups.list({
+            userKey: email,
+            fields: "nextPageToken, groups/email",
+            pageToken,
+          });
+
+          data.groups.forEach((group) => {
+            groups.push(group.email);
+          });
+          pageToken = data.nextPageToken;
+        } while (pageToken);
+
+        // TOOD: Restrict users based on group membership.
+        debug("Groups: ");
+        groups.forEach((group) => {
+          debug(`  ${group}`);
+        });
+      } catch (err) {
+        debug(`An error occured while getting groups: ${err}`);
+      }
 
       models.User.findOrCreate({
         where: {

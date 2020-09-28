@@ -42,8 +42,8 @@
     {
       "type": "node",
       "request": "launch",
-      "name": "Test G Suite",
-      "program": "${workspaceFolder}/testGSuite.js"
+      "name": "Get Google OAuth Token",
+      "program": "${workspaceFolder}/utils/getGoogleOAuthToken.js"
     }
   ]
 }

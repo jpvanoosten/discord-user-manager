@@ -257,9 +257,11 @@ A Discord Bot is a privileged user that can perform certain actions within your 
 - Give the Discord bot a username such as **Discord User Manager**.
 - Optionally, you can give the Discord bot an image icon. This is the icon that will be used to represent this bot in your Discord server.
 - Since the bot will only be used by your own Discord server, uncheck **Public Bot** setting.
-- Ensure that the rest of the options on the Bot screen are also disabled.
+- Under **Privileged Gateway Intents** make sure **Server Members Intent** is enabled.
 - Click the **Save Changes** button on the bottom of the screen.
 - Click the **Copy** button under **TOKEN** section and paste the bot token to the value of the `DISCORD_BOT_TOKEN` environment variable in the `.env` file.
+
+> The **Server Members Intent** is required to allow your bot to receive the `guildMemberAdd`, and `guildMemberRemove` events. These are considered privilaged events which requires this option to be enabled. See https://discord.com/developers/docs/topics/gateway#gateway-intents for more information.
 
 ### Add Application to your Discord Server
 

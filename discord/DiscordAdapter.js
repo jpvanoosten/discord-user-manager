@@ -81,7 +81,7 @@ class DiscordAdapter extends EventEmitter {
       this.client.reactions.set(reaction.name, reaction);
     }
 
-    debug("Ready!");
+    this.logInfo("Ready!");
     // Emit the ready event (usefull for setup of test frameworks like Jest)
     this.emit("ready");
   }
@@ -99,8 +99,22 @@ class DiscordAdapter extends EventEmitter {
    * @param {string|object|Array<string>} message The message to log.
    * @returns {Promise<Discord.Message|null>}
    */
-  // eslint-disable-next-line no-unused-vars
-  async log(logLevel, message) {
+  async log(logLevel) {
+    const args = [...arguments].slice(1);
+    const message = args
+      .map((arg) => {
+        switch (typeof arg) {
+          case "string":
+            return arg;
+          case "object":
+            return [...arg];
+        }
+      })
+      .join(" ");
+
+    // Also log a message to the console using the debug logger.
+    debug("[%s]: %s", logLevel, message);
+
     const logColors = {
       info: "GREEN",
       warning: "ORANGE",
@@ -111,20 +125,10 @@ class DiscordAdapter extends EventEmitter {
     try {
       const logChannel = await this.resolveChannel(config.logChannel);
       if (logChannel && logChannel.send) {
-        const args = [...arguments].slice(1);
-        const message = args.map((arg) => {
-          switch (typeof arg) {
-            case "string":
-              return arg;
-            case "object":
-              return [...arg];
-          }
-        });
-
         const logMessage = new Discord.MessageEmbed()
           .setTitle(logLevel)
           .setColor(logColors[logLevel])
-          .setDescription(message.join(" "));
+          .setDescription(message);
 
         return await logChannel.send(logMessage);
       }
@@ -170,7 +174,6 @@ class DiscordAdapter extends EventEmitter {
    */
   // eslint-disable-next-line no-unused-vars
   async logDebug(message) {
-    debug(arguments);
     return await this.log("debug", arguments);
   }
 
@@ -184,7 +187,7 @@ class DiscordAdapter extends EventEmitter {
       try {
         await message.fetch();
       } catch (err) {
-        debug(`An error occured while fetching partial message: ${err}`);
+        this.logError(`An error occured while fetching partial message: ${err}`);
         return message.reply(`An error occured while fetching partial message: ${err}`);
       }
     }
@@ -258,10 +261,10 @@ class DiscordAdapter extends EventEmitter {
 
     // Try to execute the command.
     try {
-      debug(`Processing command: ${command.name}`);
+      this.logDebug(`Processing command: ${command.name}`);
       command.execute(message, args);
     } catch (err) {
-      debug(err);
+      this.logError(`There was an error executing the ${command.name} command: ${err}`);
       message.reply(`There was an error trying to execute the ${command.name} command: ${err}`);
     }
   }
@@ -273,7 +276,7 @@ class DiscordAdapter extends EventEmitter {
       try {
         await reaction.message.fetch();
       } catch (err) {
-        debug(`An error occure while fetching partial message: ${err}`);
+        this.logError(`An error occure while fetching partial message: ${err}`);
         return;
       }
     }
@@ -285,7 +288,7 @@ class DiscordAdapter extends EventEmitter {
         }
       });
     } catch (err) {
-      debug(`An error occured while processing reactions: ${err}`);
+      this.logError(`An error occured while processing reactions: ${err}`);
     }
   }
 
@@ -296,7 +299,7 @@ class DiscordAdapter extends EventEmitter {
       try {
         await reaction.message.fetch();
       } catch (err) {
-        debug(`An error occure while fetching partial message: ${err}`);
+        this.logError(`An error occure while fetching partial message: ${err}`);
         return;
       }
     }
@@ -308,7 +311,7 @@ class DiscordAdapter extends EventEmitter {
         }
       });
     } catch (err) {
-      debug(`An error occured while processing reactions: ${err}`);
+      this.logError(`An error occured while processing reactions: ${err}`);
     }
   }
 
@@ -317,8 +320,6 @@ class DiscordAdapter extends EventEmitter {
    * @param {Discord.GuildMember} guildMember
    */
   async onGuildMemberAdd(guildMember) {
-    debug(`Adding guild member: ${guildMember.user.tag}`);
-
     this.logInfo(`${guildMember} has been added to the server.`);
 
     const user = await User.findOne({
@@ -329,11 +330,13 @@ class DiscordAdapter extends EventEmitter {
 
     if (user) {
       // Update the guild member's nickname to match their given name.
-      await guildMember.setNickname(user.name);
+      try {
+        await guildMember.setNickname(user.name);
+      } catch (err) {
+        this.logError(`An error occured while setting the nickname for ${user.name}: ${err}`);
+      }
     } else {
-      this.logWarning(`${guildMember} was not found in the database.`);
-
-      debug(`Guild member ${guildMember.user.tag} was not found in the database.`);
+      this.logWarning(`${guildMember} was added to the server but was not found in the database.`);
     }
   }
 
@@ -342,8 +345,6 @@ class DiscordAdapter extends EventEmitter {
    * @param {Discord.GuildMember} guildMember
    */
   async onGuildMemberRemove(guildMember) {
-    debug(`Removing guild member: ${guildMember.user.tag}`);
-
     this.logInfo(`${guildMember} was removed from the server.`);
 
     const user = await User.findOne({
@@ -492,13 +493,11 @@ class DiscordAdapter extends EventEmitter {
         await guildMember.setNickname(nickname);
         this.logInfo(`Updated nickname for ${guildMember}`);
       } catch (err) {
-        this.logError(`Could not set nickname (${nickname}) for ${guildMember}`);
-        debug(`Error setting nickname (${nickname}) for ${userResolvable}: ${err}`);
+        this.logError(`Could not set nickname (${nickname}) for ${guildMember}: ${err}`);
         throw err;
       }
     } else {
       this.logError(`Could not find ${userResolvable}`);
-      debug(`Error: Could not find ${userResolvable}`);
     }
   }
 
@@ -522,7 +521,7 @@ class DiscordAdapter extends EventEmitter {
     let guildMember = await this.resolveGuildMember(userResolvable);
 
     if (guildMember) {
-      debug(`User ${guildMember.user.tag} is already a member of the guild.`);
+      this.logInfo(`User ${guildMember.user.tag} is already a member of the guild.`);
       // Just update the nickname.
       this.setNickname(userResolvable, nick);
     } else {
@@ -532,8 +531,6 @@ class DiscordAdapter extends EventEmitter {
         throw new Error(`User with id ${userResolvable.id || userResolvable} was not found.`);
       }
 
-      debug(`Adding user ${discordUser.tag} to the guild.`);
-
       // Add the member and set the nickname.
       try {
         guildMember = await guild.addMember(discordUser, {
@@ -542,7 +539,7 @@ class DiscordAdapter extends EventEmitter {
           roles: [defaultRole.id],
         });
       } catch (err) {
-        debug(`An error occured while adding user to the guild: ${err}`);
+        this.logError(`DiscordAdapter.addUser: Could not add ${nick} to the server: ${err}`);
         throw new Error(err);
       }
     }
@@ -559,12 +556,12 @@ class DiscordAdapter extends EventEmitter {
     const guildMember = await this.resolveGuildMember(userResolvable);
 
     if (!guildMember) {
-      debug(`User ${userResolvable.id || userResolvable} not a member of the guild.`);
+      this.logWarning(`User ${userResolvable.id || userResolvable} not a member of the guild.`);
     } else {
       try {
         await guildMember.kick(reason);
       } catch (err) {
-        debug(`An error occured while removing ${guildMember.tag}: ${err}`);
+        this.logError(`An error occured while removing ${guildMember.tag}: ${err}`);
       }
     }
   }
@@ -586,12 +583,11 @@ class DiscordAdapter extends EventEmitter {
       throw new Error(`Role ${roleResolvable} does not resolve to a valid guild role.`);
     }
 
-    debug(`Add role ${guildRole.name} to ${guildMember.tag}`);
     try {
       await guildMember.roles.add(guildRole.id);
       await this.logInfo(`${guildMember} has been added to role ${guildRole}`);
     } catch (err) {
-      debug(`An error occured while adding ${guildMember.nickname} to role ${guildRole.name}: ${err}`);
+      this.logError(`An error occured while adding ${guildMember.nickname} to role ${guildRole.name}: ${err}`);
     }
   }
 
@@ -612,10 +608,12 @@ class DiscordAdapter extends EventEmitter {
       throw new Error(`Role ${roleResolvable} does not resolve to a valid guild role.`);
     }
 
-    debug(`Remove role ${guildRole.name} to ${guildMember.tag}`);
-    await guildMember.roles.remove(guildRole.id);
-
-    await this.logInfo(`${guildMember} has been removed from role ${guildRole}`);
+    try {
+      await guildMember.roles.remove(guildRole.id);
+      await this.logInfo(`${guildMember} has been removed from role ${guildRole}`);
+    } catch (err) {
+      this.logError(`An error occured while removing the role ${guildRole} from ${guildMember}: ${err}`);
+    }
   }
 
   /**
@@ -642,10 +640,10 @@ class DiscordAdapter extends EventEmitter {
       try {
         await guild.unban(userResolvable);
       } catch (err) {
-        debug(`An error occured while unbanning user ${userResolvable}: ${err}`);
+        this.logError(`An error occured while unbanning user ${userResolvable}: ${err}`);
       }
     } else {
-      debug(`Failed to unban user ${userResolvable}. Reason: Guild not available.`);
+      this.logError(`Failed to unban user ${userResolvable}. Reason: Guild not available.`);
     }
   }
 
@@ -663,7 +661,7 @@ class DiscordAdapter extends EventEmitter {
       const bans = await guild.fetchBans();
       ban = bans.get(user.id);
     } catch (err) {
-      debug(`Error fetching ban info: ${err}`);
+      this.logError(`Error fetching ban info: ${err}`);
     }
 
     return ban && ban.reason;

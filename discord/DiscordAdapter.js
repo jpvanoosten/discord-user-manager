@@ -81,6 +81,10 @@ class DiscordAdapter extends EventEmitter {
       this.client.reactions.set(reaction.name, reaction);
     }
 
+    this.logInfo(`
+    Platform    : ${process.platform}
+    Node version: ${process.version}`);
+
     this.logInfo("Ready!");
     // Emit the ready event (usefull for setup of test frameworks like Jest)
     this.emit("ready");

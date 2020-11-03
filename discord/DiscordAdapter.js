@@ -39,7 +39,7 @@ class DiscordAdapter extends EventEmitter {
     this.resolveUser = this.resolveUser.bind(this);
 
     this.client = new Discord.Client({
-      partials: ["MESSAGE", "CHANNEL"], // Allow partials (required for handling reactions on uncached messages)
+      partials: ["MESSAGE", "CHANNEL", "REACTION"], // Allow partials (required for handling reactions on uncached messages)
     });
     this.client.commands = new Discord.Collection();
     this.client.reactions = new Discord.Collection();

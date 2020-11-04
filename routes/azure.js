@@ -9,7 +9,7 @@ const AzureStrategy = require("passport-azure-ad-oauth2").Strategy;
 
 const models = require("../models");
 
-// Google strategy for autenticating users with a Google account
+// Azure strategy for autenticating users with an Microsoft Azure AD account
 passport.use(
   new AzureStrategy(
     {
@@ -60,10 +60,10 @@ passport.use(
     }
   )
 );
-/* GET Google Login page. */
+/* GET Azure Login page. */
 router.get("/", passport.authenticate("azure_ad_oauth2"));
 
-/* Google login redirect URI */
+/* Azure login redirect URI */
 router.get(
   "/callback",
   passport.authenticate("azure_ad_oauth2", {
